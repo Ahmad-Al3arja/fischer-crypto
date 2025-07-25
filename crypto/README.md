@@ -1,0 +1,396 @@
+# Investment Platform Backend API
+
+A comprehensive Spring Boot backend for an investment platform with user management, daily profit counters, referral system, and admin panel.
+
+## 🚀 Features
+
+### User Features
+- **Registration & Authentication**: Phone-based registration with referral system
+- **Dashboard**: Real-time balance, profits, and counter status
+- **Investment Plans**: 9 different investment levels with progressive profits
+- **Deposits**: USDT deposits with promo code support
+- **Withdrawals**: Profit withdrawals to USDT wallet
+- **Referral System**: 12% direct + 6% grand referrer commissions
+- **Daily Counter**: 24-hour profit generation with auto-upgrade logic
+
+### Admin Features
+- **User Management**: Activate, suspend, and manage user balances
+- **Transaction Management**: Approve/reject deposits and withdrawals
+- **Promo Code Management**: Create and manage promotional codes
+- **System Settings**: Maintenance mode and platform content management
+- **Daily Counter Control**: Manual activation/deactivation of user counters
+
+## 🛠 Technology Stack
+
+- **Framework**: Spring Boot 3.5.3
+- **Database**: MySQL 8.0
+- **Security**: Spring Security with JWT
+- **ORM**: JPA/Hibernate
+- **Build Tool**: Maven
+- **Java Version**: 17
+
+## 📋 Prerequisites
+
+- Java 17 or higher
+- MySQL 8.0 or higher
+- Maven 3.6+
+
+## 🔧 Installation & Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd crypto
+   ```
+
+2. **Configure Database**
+   - Create MySQL database: `investment_platform`
+   - Update `application.yml` with your database credentials
+
+3. **Environment Variables**
+   ```bash
+   export DB_USERNAME=your_db_username
+   export DB_PASSWORD=your_db_password
+   export JWT_SECRET=your_jwt_secret_key
+   ```
+
+4. **Run the Application**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+The application will start on `http://localhost:8080`
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+#### Register User
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "username": "johndoe",
+  "phoneNumber": "+1234567890",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "referralCode": "referrer123"
+}
+```
+
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "phoneNumber": "+1234567890",
+  "password": "password123"
+}
+```
+
+### User Endpoints (Require Authentication)
+
+#### Get Dashboard
+```http
+GET /api/user/dashboard
+Authorization: Bearer <jwt_token>
+```
+
+#### Get Profile
+```http
+GET /api/user/profile
+Authorization: Bearer <jwt_token>
+```
+
+#### Get Referral Stats
+```http
+GET /api/user/referral-stats
+Authorization: Bearer <jwt_token>
+```
+
+#### Activate Daily Counter
+```http
+POST /api/user/activate-counter
+Authorization: Bearer <jwt_token>
+```
+
+### Investment Plans
+
+#### Get All Plans
+```http
+GET /api/plans
+```
+
+#### Get Plan by ID
+```http
+GET /api/plans/{planId}
+```
+
+### Transaction Endpoints
+
+#### Create Deposit
+```http
+POST /api/transactions/deposit
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "amount": 100.00,
+  "planId": 1,
+  "promoCode": "WELCOME10"
+}
+```
+
+#### Get Deposit Info
+```http
+GET /api/transactions/deposit-info
+Authorization: Bearer <jwt_token>
+```
+
+#### Create Withdrawal
+```http
+POST /api/transactions/withdraw
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "amount": 50.00,
+  "walletAddress": "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE"
+}
+```
+
+#### Get Withdrawal History
+```http
+GET /api/transactions/withdrawal-history
+Authorization: Bearer <jwt_token>
+```
+
+#### Get Deposit History
+```http
+GET /api/transactions/deposit-history
+Authorization: Bearer <jwt_token>
+```
+
+### Wallet Management
+
+#### Save Wallet Address
+```http
+POST /api/transactions/wallet/save
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "usdtAddress": "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE"
+}
+```
+
+#### Get Wallet Info
+```http
+GET /api/transactions/wallet
+Authorization: Bearer <jwt_token>
+```
+
+### Admin Endpoints (Require Admin Role)
+
+#### Get All Users
+```http
+GET /api/admin/users?planId=1
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Get User Details
+```http
+GET /api/admin/users/{userId}
+Authorization: Bearer <admin_jwt_token>
+```
+
+
+
+#### Update User Balance
+```http
+POST /api/admin/users/{userId}/balance
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+
+{
+  "amount": 100.00,
+  "reason": "Bonus payment"
+}
+```
+
+#### Update User Wallet Address
+```http
+POST /api/admin/users/{userId}/wallet
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+
+{
+  "usdtAddress": "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE"
+}
+```
+
+#### Get All Deposits
+```http
+GET /api/admin/deposits?status=PENDING
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Approve Deposit
+```http
+POST /api/admin/deposits/{depositId}/approve
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Get All Withdrawals
+```http
+GET /api/admin/withdrawals?status=PENDING
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Approve Withdrawal
+```http
+POST /api/admin/withdrawals/{withdrawalId}/approve
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Reject Withdrawal
+```http
+POST /api/admin/withdrawals/{withdrawalId}/reject
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+
+{
+  "reason": "Invalid wallet address"
+}
+```
+
+#### Activate User Counter
+```http
+POST /api/admin/users/{userId}/counter/activate
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Create Promo Code
+```http
+POST /api/admin/promo-codes
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+
+{
+  "code": "WELCOME10",
+  "bonusValue": 10.00,
+  "usageLimit": 100,
+  "expiresAt": "2024-12-31T23:59:59"
+}
+```
+
+#### Get Admin Settings
+```http
+GET /api/admin/settings
+Authorization: Bearer <admin_jwt_token>
+```
+
+#### Toggle Maintenance Mode
+```http
+POST /api/admin/settings/maintenance
+Authorization: Bearer <admin_jwt_token>
+Content-Type: application/json
+
+{
+  "enabled": true
+}
+```
+
+## 🔄 Business Logic
+
+### Daily Counter System
+- Each user has a daily counter that runs for 24 hours
+- Profits increase progressively from min to max over 30 days
+- Auto-completion when time expires
+- Manual activation by admin required
+
+### Auto-Upgrade Logic
+- When user balance reaches next plan price, automatic upgrade occurs
+- Current capital is frozen for the upgrade
+- Only earned profits are withdrawable
+- Counter resets after upgrade
+
+### Referral System
+- 12% commission to direct referrer on first deposit
+- 6% commission to grand referrer (referrer's referrer)
+- Commissions tracked in separate table
+- Referral earnings added to user balance
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+mvn test
+```
+
+Key test coverage:
+- Daily counter logic
+- User registration and authentication
+- Referral commission calculations
+- Auto-upgrade functionality
+
+## 📊 Database Schema
+
+### Core Tables
+- `users` - User accounts and balances
+- `plans` - Investment plan definitions
+- `deposits` - Deposit transactions
+- `withdrawals` - Withdrawal transactions
+- `referral_earnings` - Referral commission tracking
+- `daily_counters` - Daily profit counters
+- `promo_codes` - Promotional codes
+- `wallets` - User wallet addresses
+- `admin_settings` - Platform configuration
+
+## 🔒 Security
+
+- JWT-based authentication
+- Role-based access control (USER/ADMIN)
+- BCrypt password hashing
+- Input validation and sanitization
+- Global exception handling
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+mvn clean package -DskipTests
+```
+
+### Docker Deployment
+```bash
+docker build -t investment-platform .
+docker run -p 8080:8080 investment-platform
+```
+
+## 📝 Configuration
+
+Key configuration in `application.yml`:
+- Database connection settings
+- JWT secret and expiration
+- Platform USDT wallet address
+- Maintenance mode settings
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions, please contact the development team. 
