@@ -1,0 +1,434 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { apiService } from "@/services/api"
+import ProtectedRoute from "@/components/ProtectedRoute"
+import Navbar from "@/components/Navbar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import {
+  User,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  Play,
+  CheckCircle,
+  CreditCard,
+  Banknote,
+  History,
+  BarChart3,
+  Users,
+  Copy,
+  Home,
+  Wallet,
+  User as ProfileIcon,
+} from "lucide-react"
+import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
+
+interface DashboardData {
+  fullName: string
+  username: string
+  phoneNumber: string
+  currentPlanName: string
+  totalBalance: number
+  totalProfits: number
+  dailyProfit: number
+  counterStatus: {
+    isActive: boolean
+    isCompleted: boolean
+    remainingSeconds: number
+    needsReset: boolean
+  }
+  activationPending: boolean
+  activationMessage?: string
+}
+
+export default function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [counterLoading, setCounterLoading] = useState(false)
+  const [localRemainingSeconds, setLocalRemainingSeconds] = useState(0)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  // Real-time countdown timer
+  useEffect(() => {
+    if (!dashboardData?.counterStatus.isActive || dashboardData.counterStatus.remainingSeconds <= 0) {
+      setLocalRemainingSeconds(0)
+      return
+    }
+
+    // Initialize local timer with backend data
+    setLocalRemainingSeconds(dashboardData.counterStatus.remainingSeconds)
+
+    const interval = setInterval(() => {
+      setLocalRemainingSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          // Refresh dashboard data when timer reaches 0
+          fetchDashboardData()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [dashboardData?.counterStatus.isActive, dashboardData?.counterStatus.remainingSeconds])
+
+  const fetchDashboardData = async () => {
+    try {
+      const data = await apiService.getDashboard()
+      setDashboardData(data)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleActivateCounter = async () => {
+    setCounterLoading(true)
+    setError("") // Clear previous errors
+    try {
+      await apiService.activateCounter()
+      await fetchDashboardData()
+      toast({
+        title: "Success!",
+        description: "Daily timer activated successfully",
+      })
+    } catch (err: any) {
+      console.error("Counter activation error:", err)
+      // Show specific error messages based on the backend response
+      if (err.message.includes("active plan")) {
+        setError("You must purchase a plan first to activate the timer. Please visit the Plans page to invest.")
+      } else if (err.message.includes("activated by admin")) {
+        setError("Your account must be activated by admin first. Please contact support.")
+      } else if (err.message.includes("already active")) {
+        setError("Daily timer is already active. Please wait for it to complete.")
+      } else {
+        setError(err.message || "Failed to activate timer. Please try again.")
+      }
+    } finally {
+      setCounterLoading(false)
+    }
+  }
+
+  const handleCompleteCounter = async () => {
+    setCounterLoading(true)
+    setError("") // Clear previous errors
+    try {
+      await apiService.completeCounter()
+      await fetchDashboardData()
+      toast({
+        title: "Success!",
+        description: "Daily profit claimed successfully",
+      })
+    } catch (err: any) {
+      console.error("Counter completion error:", err)
+      setError(err.message || "Failed to claim profit. Please try again.")
+    } finally {
+      setCounterLoading(false)
+    }
+  }
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
+
+  const copyReferralCode = () => {
+    if (dashboardData?.username) {
+      navigator.clipboard.writeText(dashboardData.username)
+      toast({
+        title: "Copied!",
+        description: "Referral code copied to clipboard",
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+
+        <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-foreground tracking-wider mb-2">FISCHER</h1>
+          </div>
+
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {dashboardData && (
+            <>
+              {/* User Info Card */}
+              <Card className="mb-6 bg-card border-border">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{dashboardData.fullName}</h2>
+                    <div className="flex items-center justify-center space-x-2 mb-4">
+                      <span className="text-muted-foreground">Referral Code:</span>
+                      <span className="font-mono text-primary font-bold">{dashboardData.username}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={copyReferralCode}
+                        className="h-8 w-8 p-0 hover:bg-primary/10"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Balance Cards */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Card className="bg-card border-border">
+                  <CardContent className="pt-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
+                      <p className="text-xl font-bold text-foreground">${dashboardData.totalBalance.toFixed(2)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card border-border">
+                  <CardContent className="pt-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Total Profit</p>
+                      <p className="text-xl font-bold text-primary">${dashboardData.totalProfits.toFixed(2)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Card className="bg-card border-border">
+                  <CardContent className="pt-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Today's Profit</p>
+                      <p className="text-xl font-bold text-foreground">${dashboardData.dailyProfit.toFixed(2)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card border-border">
+                  <CardContent className="pt-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Bonus Profit</p>
+                      <p className="text-xl font-bold text-primary">$125.00</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Daily Timer Card */}
+              <Card className="mb-6 bg-card border-border">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-foreground">Daily Timer</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {dashboardData.currentPlanName ? `Current Plan: ${dashboardData.currentPlanName}` : "No active plan"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-32 h-32 rounded-full border-4 border-primary flex items-center justify-center bg-card">
+                      {dashboardData.counterStatus.isActive && dashboardData.counterStatus.remainingSeconds > 0 ? (
+                        <>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-foreground font-mono">
+                              {formatTime(dashboardData.counterStatus.remainingSeconds)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">Remaining Today</div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-muted-foreground">00:00:00</div>
+                          <div className="text-xs text-muted-foreground">Inactive</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {!dashboardData.currentPlanName && (
+                      <div className="text-center space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          You need an active investment plan to start earning daily profits.
+                        </p>
+                        <Link href="/plans">
+                          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                            <TrendingUp className="h-4 w-4 mr-2" />
+                            Choose a Plan
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+
+                    {dashboardData.currentPlanName && !dashboardData.counterStatus.isActive && !dashboardData.counterStatus.isCompleted && (
+                      <Button 
+                        onClick={handleActivateCounter} 
+                        disabled={counterLoading}
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {counterLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                            <span>Activating...</span>
+                          </div>
+                        ) : (
+                          "Activate Timer"
+                        )}
+                      </Button>
+                    )}
+
+                    {dashboardData.counterStatus.isActive && dashboardData.counterStatus.remainingSeconds === 0 && (
+                      <Button
+                        onClick={handleCompleteCounter}
+                        disabled={counterLoading}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground w-full"
+                      >
+                        {counterLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                            <span>Claiming...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Claim Profit</span>
+                          </div>
+                        )}
+                      </Button>
+                    )}
+
+                    {dashboardData.counterStatus.isCompleted && dashboardData.counterStatus.needsReset && (
+                      <Button 
+                        onClick={handleActivateCounter} 
+                        disabled={counterLoading}
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {counterLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                            <span>Activating...</span>
+                          </div>
+                        ) : (
+                          "Activate Timer"
+                        )}
+                      </Button>
+                    )}
+
+                    {dashboardData.counterStatus.isCompleted && !dashboardData.counterStatus.needsReset && (
+                      <div className="text-center">
+                        <Badge variant="secondary">
+                          Completed
+                        </Badge>
+                        <p className="text-sm text-muted-foreground mt-2">Come back tomorrow!</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Navigation Buttons */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Link href="/deposit">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <TrendingUp className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">Deposit</span>
+                  </Button>
+                </Link>
+
+                <Link href="/withdraw">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <Banknote className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">Withdraw</span>
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Link href="/withdrawal-history">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <History className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">Transactions</span>
+                  </Button>
+                </Link>
+
+                <Link href="/referrals">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <Users className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">Network</span>
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Link href="/profile">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <ProfileIcon className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">About</span>
+                  </Button>
+                </Link>
+
+                <Link href="/plans">
+                  <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-card border-border hover:bg-muted">
+                    <BarChart3 className="h-6 w-6 text-foreground" />
+                    <span className="text-sm font-medium text-foreground">Investment</span>
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Bottom Navigation Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
+          <div className="flex justify-around py-2">
+            <Link href="/dashboard" className="flex flex-col items-center space-y-1 p-2">
+              <Home className="h-5 w-5 text-primary" />
+              <span className="text-xs text-primary">Home</span>
+            </Link>
+            <Link href="/plans" className="flex flex-col items-center space-y-1 p-2">
+              <BarChart3 className="h-5 w-5 text-foreground" />
+              <span className="text-xs text-foreground">Investment</span>
+            </Link>
+            <Link href="/wallet" className="flex flex-col items-center space-y-1 p-2">
+              <Wallet className="h-5 w-5 text-foreground" />
+              <span className="text-xs text-foreground">Wallet</span>
+            </Link>
+            <Link href="/profile" className="flex flex-col items-center space-y-1 p-2">
+              <ProfileIcon className="h-5 w-5 text-foreground" />
+              <span className="text-xs text-foreground">Profile</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+} 
