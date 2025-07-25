@@ -80,11 +80,11 @@ export default function WithdrawalHistoryPage() {
       } else {
         // Use default data if API fails or returns invalid data
         setWithdrawals(defaultWithdrawals)
-        setApiError(t('failed_to_load_withdrawal_data'))
+        setApiError("Failed to load withdrawal history from database. Showing demo data.")
       }
     } catch (err: any) {
       console.error("Error in fetchWithdrawalHistory:", err)
-      setApiError(t('failed_to_load_withdrawal_data_retry'))
+      setApiError("Failed to load withdrawal history. Please try again later.")
       // Keep default data on error
       setWithdrawals(defaultWithdrawals)
     } finally {
@@ -95,13 +95,13 @@ export default function WithdrawalHistoryPage() {
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">{t('pending')}</Badge>
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800">{t('approved')}</Badge>
+        return <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>
       case 'rejected':
-        return <Badge variant="destructive">{t('rejected')}</Badge>
+        return <Badge variant="destructive">Rejected</Badge>
       case 'processing':
-        return <Badge variant="secondary" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white border-gray-600">{t('processing')}</Badge>
+        return <Badge variant="secondary" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white border-gray-600">Processing</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -156,12 +156,12 @@ export default function WithdrawalHistoryPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <History className="h-6 w-6" />
-              <h1 className="text-3xl font-bold text-foreground">{t('withdrawal_history')}</h1>
+              <h1 className="text-3xl font-bold text-foreground">Withdrawal History</h1>
             </div>
             <Link href="/dashboard">
               <Button variant="outline" className="flex items-center space-x-2">
                 <ArrowLeft className="h-4 w-4" />
-                <span>{t('back_to_dashboard')}</span>
+                <span>Back to Dashboard</span>
               </Button>
             </Link>
           </div>
@@ -180,21 +180,21 @@ export default function WithdrawalHistoryPage() {
 
           <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
             <CardHeader>
-              <CardTitle>{t('transaction_history')}</CardTitle>
+              <CardTitle>Transaction History</CardTitle>
               <CardDescription>
-                {t('view_withdrawal_requests')}
+                View all your withdrawal requests and their current status
               </CardDescription>
             </CardHeader>
             <CardContent>
               {withdrawals.length === 0 ? (
                 <div className="text-center py-8">
                   <History className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold text-muted-foreground mb-2">{t('no_withdrawals_yet')}</h3>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-2">No Withdrawals Yet</h3>
                   <p className="text-muted-foreground mb-4">
-                    {t('no_withdrawal_requests')}
+                    You haven't made any withdrawal requests yet.
                   </p>
                   <Link href="/withdraw">
-                    <Button>{t('make_first_withdrawal')}</Button>
+                    <Button>Make Your First Withdrawal</Button>
                   </Link>
                 </div>
               ) : (
@@ -202,13 +202,13 @@ export default function WithdrawalHistoryPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t('id')}</TableHead>
-                        <TableHead>{t('amount')}</TableHead>
-                        <TableHead>{t('status')}</TableHead>
-                        <TableHead>{t('wallet_address')}</TableHead>
-                        <TableHead>{t('created')}</TableHead>
-                        <TableHead>{t('processed')}</TableHead>
-                        <TableHead>{t('transaction')}</TableHead>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Wallet Address</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Processed</TableHead>
+                        <TableHead>Transaction</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -260,28 +260,28 @@ export default function WithdrawalHistoryPage() {
           {withdrawals.length > 0 && (
             <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg mt-6">
               <CardHeader>
-                <CardTitle>{t('statistics')}</CardTitle>
+                <CardTitle>Statistics</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('total_withdrawals')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Total Withdrawals</p>
                     <p className="text-2xl font-bold text-foreground">{withdrawals.length}</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('total_amount')}</p>
-                    <p className="text-2xl font-bold text-green-400">
+                    <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
+                                         <p className="text-2xl font-bold text-green-400">
                       ${withdrawals.reduce((sum, w) => sum + w.amount, 0).toFixed(2)}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('pending')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Pending</p>
                     <p className="text-2xl font-bold text-yellow-600">
                       {withdrawals.filter(w => w.status.toLowerCase() === 'pending').length}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('completed')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Completed</p>
                     <p className="text-2xl font-bold text-green-600">
                       {withdrawals.filter(w => w.status.toLowerCase() === 'approved').length}
                     </p>

@@ -95,14 +95,9 @@ export default function DashboardPage() {
   // Initial data fetch - wait for authentication to be ready
   useEffect(() => {
     if (!authLoading && user) {
-      // Validate token before fetching data
-      checkAuth().then(isValid => {
-        if (isValid) {
-          fetchDashboardData()
-        }
-      })
+      fetchDashboardData()
     }
-  }, [fetchDashboardData, authLoading, user, checkAuth])
+  }, [fetchDashboardData, authLoading, user])
 
   // Periodic sync with backend every 30 seconds
   useEffect(() => {

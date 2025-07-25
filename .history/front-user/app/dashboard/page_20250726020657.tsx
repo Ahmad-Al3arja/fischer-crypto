@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react"
 import { apiService } from "@/services/api"
 import ProtectedRoute from "@/components/ProtectedRoute"
 import Navbar from "@/components/Navbar"
-import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -62,7 +61,6 @@ export default function DashboardPage() {
   
   const { toast } = useToast()
   const { t } = useLanguage()
-  const { user, loading: authLoading, checkAuth } = useAuth()
 
   // Fetch dashboard data from backend
   const fetchDashboardData = useCallback(async () => {
@@ -92,22 +90,16 @@ export default function DashboardPage() {
     }
   }, [])
 
-  // Initial data fetch - wait for authentication to be ready
+  // Initial data fetch
   useEffect(() => {
-    if (!authLoading && user) {
-      // Validate token before fetching data
-      checkAuth().then(isValid => {
-        if (isValid) {
-          fetchDashboardData()
-        }
-      })
-    }
-  }, [fetchDashboardData, authLoading, user, checkAuth])
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   // Periodic sync with backend every 30 seconds
   useEffect(() => {
     const syncInterval = setInterval(() => {
       if (dashboardData?.counterStatus?.isActive) {
+        console.log("Periodic sync with backend...")
         fetchDashboardData()
       }
     }, 30000) // Sync every 30 seconds
@@ -131,6 +123,7 @@ export default function DashboardPage() {
         
         // If the corrected time is significantly different, use it
         if (Math.abs(correctedTime - prev) > 5) {
+          console.log("Timer drift detected, correcting:", { prev, correctedTime })
           return correctedTime
         }
         
@@ -139,6 +132,7 @@ export default function DashboardPage() {
         
         // If timer reaches 0, mark as inactive and sync with backend
         if (newTime <= 0) {
+          console.log("Timer completed locally")
           setIsTimerActive(false)
           // Sync with backend to get updated state
           setTimeout(() => fetchDashboardData(), 1000)
@@ -154,9 +148,11 @@ export default function DashboardPage() {
   const handleActivateCounter = async () => {
     setCounterLoading(true)
     setError("")
+    console.log("Activating counter...")
     
     try {
       const response = await apiService.activateCounter()
+      console.log("Counter activation response:", response)
       
       // Fetch fresh data to get the new timer state
       await fetchDashboardData()
@@ -166,6 +162,7 @@ export default function DashboardPage() {
         description: "Daily timer activated successfully",
       })
     } catch (err: any) {
+      console.error("Counter activation error:", err)
       // Show specific error messages based on the backend response
       if (err.message.includes("active plan")) {
         setError("You must purchase a plan first to activate the timer. Please visit the Plans page to invest.")
@@ -194,6 +191,7 @@ export default function DashboardPage() {
         description: "Daily profit claimed successfully",
       })
     } catch (err: any) {
+      console.error("Counter completion error:", err)
       setError(err.message || "Failed to claim profit. Please try again.")
     } finally {
       setCounterLoading(false)
@@ -252,7 +250,7 @@ export default function DashboardPage() {
 
   const timerDisplayState = getTimerDisplayState()
 
-  if (loading || authLoading) {
+  if (loading) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-black flex items-center justify-center">

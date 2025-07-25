@@ -97,11 +97,13 @@ export default function PlansPage() {
         setPlans(convertedPlans)
         setUsingFallbackData(false)
       } else {
+        console.warn("API returned empty or invalid data for plans:", data)
         setPlans(defaultPlans)
         setUsingFallbackData(true)
         setError("Unable to load plans from database. Showing demo plans.")
       }
     } catch (err: any) {
+      console.error("Error fetching plans:", err)
       setError(err.message || "Failed to load plans from database")
       setPlans(defaultPlans)
       setUsingFallbackData(true)

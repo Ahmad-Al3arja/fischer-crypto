@@ -311,28 +311,6 @@ const translations = {
     'processing_time': 'Processing Time',
     'instant': 'Instant',
     'admin_address_copied': 'Admin TRC20 address copied to clipboard',
-    
-    // Withdrawal History Page - Additional translations
-    'withdrawal_history': 'Withdrawal History',
-    'transaction_history': 'Transaction History',
-    'view_withdrawal_requests': 'View all your withdrawal requests and their current status',
-    'no_withdrawals_yet': 'No Withdrawals Yet',
-    'no_withdrawal_requests': 'You haven\'t made any withdrawal requests yet.',
-    'make_first_withdrawal': 'Make Your First Withdrawal',
-    'statistics': 'Statistics',
-    'total_withdrawals': 'Total Withdrawals',
-    'total_amount': 'Total Amount',
-    'pending': 'Pending',
-    'completed': 'Completed',
-    'id': 'ID',
-    'amount': 'Amount',
-    'status': 'Status',
-    'wallet_address': 'Wallet Address',
-    'created': 'Created',
-    'processed': 'Processed',
-    'transaction': 'Transaction',
-    'failed_to_load_withdrawal_data': 'Failed to load withdrawal history from database. Showing demo data.',
-    'failed_to_load_withdrawal_data_retry': 'Failed to load withdrawal history. Please try again later.',
   },
   ar: {
     // Dashboard
@@ -631,28 +609,6 @@ const translations = {
     'processing_time': 'وقت المعالجة',
     'instant': 'فوري',
     'admin_address_copied': 'تم نسخ عنوان TRC20 للمدير إلى الحافظة',
-    
-    // Withdrawal History Page - Additional translations
-    'withdrawal_history': 'تاريخ السحوبات',
-    'transaction_history': 'تاريخ المعاملات',
-    'view_withdrawal_requests': 'عرض جميع طلبات السحب وحالتها الحالية',
-    'no_withdrawals_yet': 'لا توجد سحوبات بعد',
-    'no_withdrawal_requests': 'لم تقم بأي طلبات سحب بعد.',
-    'make_first_withdrawal': 'أجرِ أول سحب لك',
-    'statistics': 'الإحصائيات',
-    'total_withdrawals': 'إجمالي السحوبات',
-    'total_amount': 'إجمالي المبلغ',
-    'pending': 'قيد الانتظار',
-    'completed': 'مكتمل',
-    'id': 'المعرف',
-    'amount': 'المبلغ',
-    'status': 'الحالة',
-    'wallet_address': 'عنوان المحفظة',
-    'created': 'تم الإنشاء',
-    'processed': 'تم المعالجة',
-    'transaction': 'المعاملة',
-    'failed_to_load_withdrawal_data': 'فشل في تحميل تاريخ السحوبات من قاعدة البيانات. عرض بيانات تجريبية.',
-    'failed_to_load_withdrawal_data_retry': 'فشل في تحميل تاريخ السحوبات. يرجى المحاولة مرة أخرى لاحقاً.',
   }
 }
 

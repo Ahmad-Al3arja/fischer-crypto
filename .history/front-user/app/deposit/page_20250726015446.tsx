@@ -290,7 +290,7 @@ export default function DepositPage() {
               <Card className="col-span-1 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-2xl">
                 <CardHeader>
                   <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
-                    <Percent className="h-5 w-5 text-green-400" /> {t('plan_details')}
+                    <Percent className="h-5 w-5 text-green-400" /> Plan Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -300,7 +300,7 @@ export default function DepositPage() {
                         <div className="p-2 bg-gradient-to-r from-green-600 to-green-700 rounded-lg">
                           <Percent className="h-4 w-4 text-white" />
                         </div>
-                        <span className="text-gray-300 font-semibold">{t('daily_profit_label')}</span>
+                        <span className="text-gray-300 font-semibold">Daily Profit</span>
                       </div>
                       <span className="text-green-400 font-bold text-lg">{selectedPlan.dailyProfit}%</span>
                     </div>
@@ -309,23 +309,23 @@ export default function DepositPage() {
                         <div className="p-2 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg">
                           <Calendar className="h-4 w-4 text-white" />
                         </div>
-                        <span className="text-gray-300 font-semibold">{t('duration_label')}</span>
+                        <span className="text-gray-300 font-semibold">Duration</span>
                       </div>
-                      <span className="text-blue-400 font-bold text-lg">{selectedPlan.duration} {t('days')}</span>
+                      <span className="text-blue-400 font-bold text-lg">{selectedPlan.duration} days</span>
                     </div>
                     <div className="p-4 bg-gradient-to-r from-gray-700/20 to-gray-800/20 border border-gray-600 rounded-lg">
                       <div className="text-center">
-                        <p className="text-gray-300 text-sm mb-1">{t('monthly_profit_label')}</p>
+                        <p className="text-gray-300 text-sm mb-1">Monthly Profit</p>
                         <p className="text-green-400 text-2xl font-extrabold">{selectedPlan.totalProfit}%</p>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold mb-2">{t('plan_features_label')}</h4>
+                      <h4 className="text-white font-semibold mb-2">Plan Features:</h4>
                       <ul className="text-sm text-gray-300 space-y-1">
-                        <li>• {t('daily_profit_distribution')}</li>
-                        <li>• {t('support_24_7')}</li>
-                        <li>• {t('secure_transactions')}</li>
-                        <li>• {t('instant_activation')}</li>
+                        <li>• Daily profit distribution</li>
+                        <li>• 24/7 support</li>
+                        <li>• Secure transactions</li>
+                        <li>• Instant activation</li>
                       </ul>
                     </div>
                   </div>
@@ -338,17 +338,17 @@ export default function DepositPage() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center space-x-2 text-xl font-bold">
                   <Copy className="h-5 w-5 text-green-400" />
-                  <span>{t('admin_trc20_address')}</span>
+                  <span>Admin TRC20 Address</span>
                 </CardTitle>
                 <CardDescription className="text-gray-300">
-                  {t('send_deposit_to_address')}
+                  Send your deposit to this USDT (TRC20) address
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="p-4 bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 rounded-lg flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm text-gray-400 mb-2">{t('usdt_trc20_address')}</p>
+                      <p className="text-sm text-gray-400 mb-2">USDT (TRC20) Address:</p>
                       <p className="font-mono text-lg text-white break-all select-all">TSGA528EkEJTwNctQnRWUvQ9urJxzPPZmy</p>
                     </div>
                     <Button
@@ -358,16 +358,16 @@ export default function DepositPage() {
                       className="ml-4 bg-gradient-to-r from-green-600 to-green-700 border-green-500 hover:from-green-500 hover:to-green-600 text-white font-bold shadow-md"
                     >
                       <Copy className="h-4 w-4 mr-2" />
-                      {t('copy')}
+                      Copy
                     </Button>
                   </div>
                   <div className="p-4 bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-lg">
-                    <h4 className="font-semibold text-white mb-2">{t('important_notes_label')}</h4>
+                    <h4 className="font-semibold text-white mb-2">Important Notes:</h4>
                     <ul className="text-sm text-gray-300 space-y-1">
-                      <li>• <span className="text-green-400 font-bold">{t('only_send_usdt_trc20')}</span></li>
-                      <li>• {t('double_check_address')}</li>
-                      <li>• {t('deposits_processed_automatically')}</li>
-                      <li>• <span className="text-red-400 font-bold">{t('contact_support_wrong_address')}</span></li>
+                      <li>• <span className="text-green-400 font-bold">Only send USDT (TRC20)</span> to this address</li>
+                      <li>• Double-check the address before sending</li>
+                      <li>• Deposits are processed automatically</li>
+                      <li>• <span className="text-red-400 font-bold">Contact support if you send to wrong address</span></li>
                     </ul>
                   </div>
                 </div>
@@ -379,10 +379,10 @@ export default function DepositPage() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center space-x-2 text-xl font-bold">
                   <QrCode className="h-5 w-5 text-green-400" />
-                  <span>{t('scan_qr_code')}</span>
+                  <span>Scan QR Code</span>
                 </CardTitle>
                 <CardDescription className="text-gray-300">
-                  {t('scan_qr_description')}
+                  Scan this QR code with your wallet app for quick deposit
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -391,7 +391,7 @@ export default function DepositPage() {
                     <div className="p-4 bg-white rounded-lg shadow-lg">
                       <img 
                         src="/assets/QR.jpg" 
-                        alt={t('usdt_deposit_qr_code')} 
+                        alt="USDT Deposit QR Code" 
                         className="w-48 h-48 object-contain rounded-lg"
                         onError={(e) => {
                           console.error("Failed to load QR code image");
@@ -402,19 +402,19 @@ export default function DepositPage() {
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-300 mb-2">
-                      <span className="text-green-400 font-bold">{t('how_to_use')}</span>
+                      <span className="text-green-400 font-bold">How to use:</span>
                     </p>
                     <ul className="text-xs text-gray-400 space-y-1">
-                      <li>• {t('open_usdt_wallet')}</li>
-                      <li>• {t('tap_send_transfer')}</li>
-                      <li>• {t('scan_qr_code_step')}</li>
-                      <li>• {t('enter_deposit_amount')}</li>
-                      <li>• {t('confirm_transaction')}</li>
+                      <li>• Open your USDT wallet app</li>
+                      <li>• Tap "Send" or "Transfer"</li>
+                      <li>• Scan this QR code</li>
+                      <li>• Enter the deposit amount</li>
+                      <li>• Confirm the transaction</li>
                     </ul>
                   </div>
                   <div className="p-3 bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 rounded-lg">
                     <p className="text-xs text-blue-300 text-center">
-                      <span className="font-bold">{t('tip_trc20_network')}</span>
+                      <span className="font-bold">Tip:</span> Make sure your wallet supports TRC20 network for USDT transfers
                     </p>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ export default function DepositPage() {
             <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-2xl">
               <CardHeader>
                 <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-400" /> {t('deposit_information')}
+                  <DollarSign className="h-5 w-5 text-green-400" /> Deposit Information
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -436,22 +436,22 @@ export default function DepositPage() {
                     <div className="p-2 bg-gradient-to-r from-green-600 to-green-700 rounded-lg w-fit mx-auto mb-2">
                       <DollarSign className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-sm text-gray-300 mb-1">{t('minimum_deposit')}</p>
+                    <p className="text-sm text-gray-300 mb-1">Minimum Deposit</p>
                     <p className="text-green-400 font-bold text-lg">${depositInfo.minDeposit}</p>
                   </div>
                   <div className="text-center p-6 bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg border border-gray-600">
                     <div className="p-2 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg w-fit mx-auto mb-2">
                       <TrendingUp className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-sm text-gray-300 mb-1">{t('maximum_deposit')}</p>
+                    <p className="text-sm text-gray-300 mb-1">Maximum Deposit</p>
                     <p className="text-blue-400 font-bold text-lg">${depositInfo.maxDeposit.toLocaleString()}</p>
                   </div>
                   <div className="text-center p-6 bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg border border-gray-600">
                     <div className="p-2 bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg w-fit mx-auto mb-2">
                       <Clock className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-sm text-gray-300 mb-1">{t('processing_time')}</p>
-                    <p className="text-purple-400 font-bold text-lg">{t('instant')}</p>
+                    <p className="text-sm text-gray-300 mb-1">Processing Time</p>
+                    <p className="text-purple-400 font-bold text-lg">{depositInfo.processingTime}</p>
                   </div>
                 </div>
               </CardContent>

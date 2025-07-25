@@ -16,10 +16,13 @@ class ApiService {
         const savedToken = localStorage.getItem("token")
         if (savedToken) {
           this.authToken = savedToken
+          console.log("API Service: Token initialized from localStorage")
+        } else {
+          console.log("API Service: No token found in localStorage")
         }
       }
     } catch (error) {
-      // Handle localStorage errors silently
+      console.error("API Service: Error initializing token:", error)
     }
   }
 

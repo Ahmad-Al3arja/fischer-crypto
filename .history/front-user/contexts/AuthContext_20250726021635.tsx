@@ -18,7 +18,6 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>
   logout: () => void
   loading: boolean
-  checkAuth: () => Promise<boolean>
 }
 
 interface RegisterData {
@@ -40,16 +39,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
+      console.log("Initializing AuthContext...")
       const savedToken = localStorage.getItem("token")
       const savedUser = localStorage.getItem("user")
+
+      console.log("Saved token found:", !!savedToken)
+      console.log("Saved user found:", !!savedUser)
 
       if (savedToken && savedUser) {
         setToken(savedToken)
         setUser(JSON.parse(savedUser))
         apiService.setAuthToken(savedToken)
+        console.log("Restored authentication from localStorage")
       } else {
         // Clear any existing token in API service if no token in localStorage
         apiService.setAuthToken(null)
+        console.log("No saved authentication found")
       }
     } catch (error) {
       console.error("AuthContext initialization error:", error)
@@ -64,15 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (token) {
       apiService.setAuthToken(token)
+      console.log("AuthContext: Token synchronized with API service")
     }
   }, [token])
 
   const login = async (phoneNumber: string, password: string) => {
     try {
+      console.log("Starting login process...")
       const response = await apiService.login({ phoneNumber, password })
+      console.log("Login response received:", response)
 
       // Check if response has the expected structure
       if (!response.token || !response.userId || !response.username || !response.role) {
+        console.error("Invalid response structure:", response)
         throw new Error("Invalid response format from server")
       }
 
@@ -88,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Save to localStorage with error handling
       try {
+        console.log("Saving to localStorage...")
         localStorage.setItem("token", response.token)
         localStorage.setItem("user", JSON.stringify(userData))
         
@@ -95,10 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedToken = localStorage.getItem("token")
         const savedUser = localStorage.getItem("user")
         
+        console.log("Saved token:", savedToken ? "Present" : "Missing")
+        console.log("Saved user:", savedUser ? "Present" : "Missing")
+        
         if (!savedToken || !savedUser) {
           throw new Error("Failed to save authentication data to localStorage")
         }
       } catch (storageError) {
+        console.error("localStorage error:", storageError)
         throw new Error(`Storage error: ${storageError}`)
       }
 
@@ -160,22 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login")
   }
 
-  const checkAuth = async (): Promise<boolean> => {
-    if (!token) return false
-    
-    try {
-      // Try to fetch user profile to validate token
-      await apiService.getProfile()
-      return true
-    } catch (error) {
-      // Token is invalid, clear it
-      logout()
-      return false
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading, checkAuth }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>{children}</AuthContext.Provider>
   )
 }
 

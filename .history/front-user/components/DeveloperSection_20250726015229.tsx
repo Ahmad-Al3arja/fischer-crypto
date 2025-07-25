@@ -1,33 +1,11 @@
 import { ExternalLink, MessageCircle, Heart } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-interface DeveloperSectionProps {
-  compact?: boolean
-}
-
-export default function DeveloperSection({ compact = false }: DeveloperSectionProps) {
+export default function DeveloperSection() {
   const { t } = useLanguage()
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = "970599123456" // Replace with actual WhatsApp number
-    const message = "Hello! I'm interested in your web development services."
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
-  }
-
-  if (compact) {
-    return (
-      <div className="w-full text-center py-4">
-        <button
-          onClick={handleWhatsAppClick}
-          className="text-green-400 hover:text-green-300 text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-1 mx-auto"
-        >
-          <MessageCircle className="h-3 w-3" />
-          <span>{t('developer_name')}</span>
-          <ExternalLink className="h-3 w-3" />
-        </button>
-      </div>
-    )
+    window.open('https://wa.me/972594262092', '_blank')
   }
 
   return (
@@ -52,6 +30,7 @@ export default function DeveloperSection({ compact = false }: DeveloperSectionPr
               </div>
             </div>
           </div>
+          
           {/* WhatsApp Button */}
           <div className="space-y-6">
             <button
@@ -62,11 +41,12 @@ export default function DeveloperSection({ compact = false }: DeveloperSectionPr
               <span>{t('contact_on_whatsapp')}</span>
               <ExternalLink className="h-6 w-6" />
             </button>
+            
             {/* Footer */}
             <div className="text-center pt-4 border-t border-gray-700">
               <p className="text-gray-400 text-sm flex items-center justify-center gap-2 tracking-wide">
                 <span>{t('developed_with')}</span>
-                <Heart className="h-4 w-4 text-red-500 animate-pulse" />
+                <Heart className="h-4 w-4 text-red-500 fill-current animate-pulse" />
                 <span>{t('by_developer')}</span>
               </p>
             </div>

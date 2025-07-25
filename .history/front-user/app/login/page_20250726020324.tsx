@@ -97,7 +97,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -106,6 +106,9 @@ export default function LoginPage() {
                   />
                   <Label htmlFor="remember" className="text-sm text-foreground">تذكرني</Label>
                 </div>
+                <Link href="#" className="text-sm text-green-400 hover:text-green-300">
+                  نسيت كلمة المرور؟
+                </Link>
               </div>
 
                              <Button type="submit" className="w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white" disabled={loading}>

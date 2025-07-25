@@ -69,10 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (phoneNumber: string, password: string) => {
     try {
+      console.log("Starting login process...")
       const response = await apiService.login({ phoneNumber, password })
+      console.log("Login response received:", response)
 
       // Check if response has the expected structure
       if (!response.token || !response.userId || !response.username || !response.role) {
+        console.error("Invalid response structure:", response)
         throw new Error("Invalid response format from server")
       }
 
@@ -88,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Save to localStorage with error handling
       try {
+        console.log("Saving to localStorage...")
         localStorage.setItem("token", response.token)
         localStorage.setItem("user", JSON.stringify(userData))
         
@@ -95,10 +99,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedToken = localStorage.getItem("token")
         const savedUser = localStorage.getItem("user")
         
+        console.log("Saved token:", savedToken ? "Present" : "Missing")
+        console.log("Saved user:", savedUser ? "Present" : "Missing")
+        
         if (!savedToken || !savedUser) {
           throw new Error("Failed to save authentication data to localStorage")
         }
       } catch (storageError) {
+        console.error("localStorage error:", storageError)
         throw new Error(`Storage error: ${storageError}`)
       }
 

@@ -18,7 +18,6 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>
   logout: () => void
   loading: boolean
-  checkAuth: () => Promise<boolean>
 }
 
 interface RegisterData {
@@ -39,42 +38,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    try {
-      const savedToken = localStorage.getItem("token")
-      const savedUser = localStorage.getItem("user")
+    const savedToken = localStorage.getItem("token")
+    const savedUser = localStorage.getItem("user")
 
-      if (savedToken && savedUser) {
-        setToken(savedToken)
-        setUser(JSON.parse(savedUser))
-        apiService.setAuthToken(savedToken)
-      } else {
-        // Clear any existing token in API service if no token in localStorage
-        apiService.setAuthToken(null)
-      }
-    } catch (error) {
-      console.error("AuthContext initialization error:", error)
-      // Handle any localStorage errors
+    if (savedToken && savedUser) {
+      setToken(savedToken)
+      setUser(JSON.parse(savedUser))
+      apiService.setAuthToken(savedToken)
+    } else {
+      // Clear any existing token in API service if no token in localStorage
       apiService.setAuthToken(null)
-    } finally {
-      setLoading(false)
     }
+    
+    // Ensure API service is properly initialized
+    apiService.reinitializeToken()
+    setLoading(false)
   }, [])
 
   // Ensure API service token is always synchronized
   useEffect(() => {
-    if (token) {
-      apiService.setAuthToken(token)
-    }
+    apiService.setAuthToken(token)
   }, [token])
 
   const login = async (phoneNumber: string, password: string) => {
     try {
       const response = await apiService.login({ phoneNumber, password })
-
-      // Check if response has the expected structure
-      if (!response.token || !response.userId || !response.username || !response.role) {
-        throw new Error("Invalid response format from server")
-      }
 
       const userData = {
         id: response.userId,
@@ -112,11 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (data: RegisterData) => {
     try {
       const response = await apiService.register(data)
-
-      // Check if response has the expected structure
-      if (!response.token || !response.userId || !response.username || !response.role) {
-        throw new Error("Invalid response format from server")
-      }
 
       const userData = {
         id: response.userId,
@@ -160,22 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login")
   }
 
-  const checkAuth = async (): Promise<boolean> => {
-    if (!token) return false
-    
-    try {
-      // Try to fetch user profile to validate token
-      await apiService.getProfile()
-      return true
-    } catch (error) {
-      // Token is invalid, clear it
-      logout()
-      return false
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading, checkAuth }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>{children}</AuthContext.Provider>
   )
 }
 

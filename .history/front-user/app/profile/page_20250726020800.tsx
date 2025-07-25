@@ -143,6 +143,7 @@ export default function ProfilePage() {
         description: "Profile updated successfully",
       })
     } catch (err: any) {
+      console.error("Error updating profile:", err)
       
       // Handle specific error cases
       if (err.message?.includes("Unauthorized") || err.message?.includes("401")) {

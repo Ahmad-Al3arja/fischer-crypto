@@ -18,7 +18,6 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>
   logout: () => void
   loading: boolean
-  checkAuth: () => Promise<boolean>
 }
 
 interface RegisterData {
@@ -51,8 +50,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Clear any existing token in API service if no token in localStorage
         apiService.setAuthToken(null)
       }
+      
+      // Ensure API service is properly initialized
+      apiService.reinitializeToken()
     } catch (error) {
-      console.error("AuthContext initialization error:", error)
       // Handle any localStorage errors
       apiService.setAuthToken(null)
     } finally {
@@ -62,9 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Ensure API service token is always synchronized
   useEffect(() => {
-    if (token) {
-      apiService.setAuthToken(token)
-    }
+    apiService.setAuthToken(token)
   }, [token])
 
   const login = async (phoneNumber: string, password: string) => {
@@ -160,22 +159,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login")
   }
 
-  const checkAuth = async (): Promise<boolean> => {
-    if (!token) return false
-    
-    try {
-      // Try to fetch user profile to validate token
-      await apiService.getProfile()
-      return true
-    } catch (error) {
-      // Token is invalid, clear it
-      logout()
-      return false
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading, checkAuth }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>{children}</AuthContext.Provider>
   )
 }
 

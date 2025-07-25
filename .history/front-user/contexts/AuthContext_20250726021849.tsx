@@ -88,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Save to localStorage with error handling
       try {
+        console.log("Saving to localStorage...")
         localStorage.setItem("token", response.token)
         localStorage.setItem("user", JSON.stringify(userData))
         
@@ -95,10 +96,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedToken = localStorage.getItem("token")
         const savedUser = localStorage.getItem("user")
         
+        console.log("Saved token:", savedToken ? "Present" : "Missing")
+        console.log("Saved user:", savedUser ? "Present" : "Missing")
+        
         if (!savedToken || !savedUser) {
           throw new Error("Failed to save authentication data to localStorage")
         }
       } catch (storageError) {
+        console.error("localStorage error:", storageError)
         throw new Error(`Storage error: ${storageError}`)
       }
 

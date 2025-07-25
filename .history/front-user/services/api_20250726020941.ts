@@ -1,35 +1,20 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
 
-
-
 class ApiService {
   private authToken: string | null = null
 
   constructor() {
     // Initialize with token from localStorage if available
-    this.initializeToken()
-  }
-
-  private initializeToken() {
-    try {
-      if (typeof window !== 'undefined') {
-        const savedToken = localStorage.getItem("token")
-        if (savedToken) {
-          this.authToken = savedToken
-        }
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem("token")
+      if (savedToken) {
+        this.authToken = savedToken
       }
-    } catch (error) {
-      // Handle localStorage errors silently
     }
   }
 
   setAuthToken(token: string | null) {
     this.authToken = token
-  }
-
-  // Reinitialize token from localStorage
-  reinitializeToken() {
-    this.initializeToken()
   }
 
   private async request(endpoint: string, options: RequestInit = {}) {
@@ -43,14 +28,10 @@ class ApiService {
       headers.Authorization = `Bearer ${this.authToken}`
     }
 
-
-
     const response = await fetch(url, {
       ...options,
       headers,
     })
-
-
 
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`
@@ -65,15 +46,12 @@ class ApiService {
       
       // Handle authentication errors
       if (response.status === 401) {
-        // Only clear token if it's a real authentication error, not a missing token
-        if (this.authToken) {
-          // Clear invalid token from localStorage and API service
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem("token")
-            localStorage.removeItem("user")
-          }
-          this.authToken = null
+        // Clear invalid token from localStorage and API service
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
         }
+        this.authToken = null
         errorMessage = `Authentication failed (401): ${errorMessage}`
       } else if (response.status === 403) {
         errorMessage = `Access denied (403): ${errorMessage}`
@@ -82,24 +60,15 @@ class ApiService {
       throw new Error(errorMessage)
     }
 
-    const data = await response.json()
-    
-
-    
-    return data
+    return response.json()
   }
 
   // Auth endpoints
   async login(data: { phoneNumber: string; password: string }) {
-    try {
-      const response = await this.request("/auth/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-      })
-      return response
-    } catch (error) {
-      throw error
-    }
+    return this.request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
   }
 
   async register(data: {

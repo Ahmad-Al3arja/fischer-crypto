@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react"
 import { apiService } from "@/services/api"
 import ProtectedRoute from "@/components/ProtectedRoute"
 import Navbar from "@/components/Navbar"
-import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -62,7 +61,6 @@ export default function DashboardPage() {
   
   const { toast } = useToast()
   const { t } = useLanguage()
-  const { user, loading: authLoading, checkAuth } = useAuth()
 
   // Fetch dashboard data from backend
   const fetchDashboardData = useCallback(async () => {
@@ -92,17 +90,10 @@ export default function DashboardPage() {
     }
   }, [])
 
-  // Initial data fetch - wait for authentication to be ready
+  // Initial data fetch
   useEffect(() => {
-    if (!authLoading && user) {
-      // Validate token before fetching data
-      checkAuth().then(isValid => {
-        if (isValid) {
-          fetchDashboardData()
-        }
-      })
-    }
-  }, [fetchDashboardData, authLoading, user, checkAuth])
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   // Periodic sync with backend every 30 seconds
   useEffect(() => {
@@ -252,7 +243,7 @@ export default function DashboardPage() {
 
   const timerDisplayState = getTimerDisplayState()
 
-  if (loading || authLoading) {
+  if (loading) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-black flex items-center justify-center">

@@ -379,10 +379,10 @@ export default function DepositPage() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center space-x-2 text-xl font-bold">
                   <QrCode className="h-5 w-5 text-green-400" />
-                  <span>{t('scan_qr_code')}</span>
+                  <span>Scan QR Code</span>
                 </CardTitle>
                 <CardDescription className="text-gray-300">
-                  {t('scan_qr_description')}
+                  Scan this QR code with your wallet app for quick deposit
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -391,7 +391,7 @@ export default function DepositPage() {
                     <div className="p-4 bg-white rounded-lg shadow-lg">
                       <img 
                         src="/assets/QR.jpg" 
-                        alt={t('usdt_deposit_qr_code')} 
+                        alt="USDT Deposit QR Code" 
                         className="w-48 h-48 object-contain rounded-lg"
                         onError={(e) => {
                           console.error("Failed to load QR code image");
@@ -402,19 +402,19 @@ export default function DepositPage() {
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-300 mb-2">
-                      <span className="text-green-400 font-bold">{t('how_to_use')}</span>
+                      <span className="text-green-400 font-bold">How to use:</span>
                     </p>
                     <ul className="text-xs text-gray-400 space-y-1">
-                      <li>• {t('open_usdt_wallet')}</li>
-                      <li>• {t('tap_send_transfer')}</li>
-                      <li>• {t('scan_qr_code_step')}</li>
-                      <li>• {t('enter_deposit_amount')}</li>
-                      <li>• {t('confirm_transaction')}</li>
+                      <li>• Open your USDT wallet app</li>
+                      <li>• Tap "Send" or "Transfer"</li>
+                      <li>• Scan this QR code</li>
+                      <li>• Enter the deposit amount</li>
+                      <li>• Confirm the transaction</li>
                     </ul>
                   </div>
                   <div className="p-3 bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 rounded-lg">
                     <p className="text-xs text-blue-300 text-center">
-                      <span className="font-bold">{t('tip_trc20_network')}</span>
+                      <span className="font-bold">Tip:</span> Make sure your wallet supports TRC20 network for USDT transfers
                     </p>
                   </div>
                 </div>

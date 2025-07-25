@@ -260,28 +260,28 @@ export default function WithdrawalHistoryPage() {
           {withdrawals.length > 0 && (
             <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg mt-6">
               <CardHeader>
-                <CardTitle>{t('statistics')}</CardTitle>
+                <CardTitle>Statistics</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('total_withdrawals')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Total Withdrawals</p>
                     <p className="text-2xl font-bold text-foreground">{withdrawals.length}</p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('total_amount')}</p>
-                    <p className="text-2xl font-bold text-green-400">
+                    <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
+                                         <p className="text-2xl font-bold text-green-400">
                       ${withdrawals.reduce((sum, w) => sum + w.amount, 0).toFixed(2)}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('pending')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Pending</p>
                     <p className="text-2xl font-bold text-yellow-600">
                       {withdrawals.filter(w => w.status.toLowerCase() === 'pending').length}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">{t('completed')}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Completed</p>
                     <p className="text-2xl font-bold text-green-600">
                       {withdrawals.filter(w => w.status.toLowerCase() === 'approved').length}
                     </p>

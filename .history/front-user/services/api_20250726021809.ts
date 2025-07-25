@@ -19,7 +19,7 @@ class ApiService {
         }
       }
     } catch (error) {
-      // Handle localStorage errors silently
+      console.error("API Service: Error initializing token:", error)
     }
   }
 

@@ -16,10 +16,13 @@ class ApiService {
         const savedToken = localStorage.getItem("token")
         if (savedToken) {
           this.authToken = savedToken
+          console.log("API Service: Token initialized from localStorage")
+        } else {
+          console.log("API Service: No token found in localStorage")
         }
       }
     } catch (error) {
-      // Handle localStorage errors silently
+      console.error("API Service: Error initializing token:", error)
     }
   }
 
@@ -43,14 +46,23 @@ class ApiService {
       headers.Authorization = `Bearer ${this.authToken}`
     }
 
-
+    // Debug request
+    if (typeof window !== 'undefined') {
+      console.log("Making request to:", url)
+      console.log("Headers:", headers)
+      console.log("Auth token present:", !!this.authToken)
+    }
 
     const response = await fetch(url, {
       ...options,
       headers,
     })
 
-
+    // Debug response
+    if (typeof window !== 'undefined') {
+      console.log("Response status:", response.status)
+      console.log("Response ok:", response.ok)
+    }
 
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`
@@ -84,7 +96,10 @@ class ApiService {
 
     const data = await response.json()
     
-
+    // Debug successful response
+    if (typeof window !== 'undefined') {
+      console.log("Response data:", data)
+    }
     
     return data
   }

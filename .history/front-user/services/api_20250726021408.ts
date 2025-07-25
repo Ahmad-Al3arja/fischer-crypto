@@ -1,13 +1,24 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
 
-
+// Debug API URL
+if (typeof window !== 'undefined') {
+  console.log("API Base URL:", API_BASE_URL)
+}
 
 class ApiService {
   private authToken: string | null = null
 
   constructor() {
     // Initialize with token from localStorage if available
-    this.initializeToken()
+    // Use setTimeout to ensure window is available
+    if (typeof window !== 'undefined') {
+      this.initializeToken()
+    } else {
+      // If window is not available, try again after a short delay
+      setTimeout(() => {
+        this.initializeToken()
+      }, 100)
+    }
   }
 
   private initializeToken() {
@@ -43,14 +54,23 @@ class ApiService {
       headers.Authorization = `Bearer ${this.authToken}`
     }
 
-
+    // Debug request
+    if (typeof window !== 'undefined') {
+      console.log("Making request to:", url)
+      console.log("Headers:", headers)
+      console.log("Auth token present:", !!this.authToken)
+    }
 
     const response = await fetch(url, {
       ...options,
       headers,
     })
 
-
+    // Debug response
+    if (typeof window !== 'undefined') {
+      console.log("Response status:", response.status)
+      console.log("Response ok:", response.ok)
+    }
 
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`
@@ -65,15 +85,12 @@ class ApiService {
       
       // Handle authentication errors
       if (response.status === 401) {
-        // Only clear token if it's a real authentication error, not a missing token
-        if (this.authToken) {
-          // Clear invalid token from localStorage and API service
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem("token")
-            localStorage.removeItem("user")
-          }
-          this.authToken = null
+        // Clear invalid token from localStorage and API service
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
         }
+        this.authToken = null
         errorMessage = `Authentication failed (401): ${errorMessage}`
       } else if (response.status === 403) {
         errorMessage = `Access denied (403): ${errorMessage}`
@@ -84,7 +101,10 @@ class ApiService {
 
     const data = await response.json()
     
-
+    // Debug successful response
+    if (typeof window !== 'undefined') {
+      console.log("Response data:", data)
+    }
     
     return data
   }
