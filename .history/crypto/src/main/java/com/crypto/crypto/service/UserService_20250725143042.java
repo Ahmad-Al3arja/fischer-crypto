@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,108 +49,64 @@ public class UserService {
     @Value("${app.platform.base-url:http://localhost:3000}")
     private String platformBaseUrl;
     
-    @Transactional(rollbackFor = Exception.class)
     public AuthDTOs.AuthResponse register(AuthDTOs.RegisterRequest request) {
-        System.out.println("[register] Start: " + request.getPhoneNumber());
+        System.out.println("UserService.register called with phone: " + request.getPhoneNumber());
         
-        try {
-            // 1. Validate passwords match
-            if (!request.getPassword().equals(request.getConfirmPassword())) {
-                throw new RuntimeException("Passwords do not match");
-            }
-
-            // 2. Enhanced validation
-            if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
-                throw new RuntimeException("Full name is required");
-            }
-            
-            if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
-                throw new RuntimeException("Username is required");
-            }
-            
-            if (request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty()) {
-                throw new RuntimeException("Phone number is required");
-            }
-            
-            if (request.getPassword() == null || request.getPassword().length() < 6) {
-                throw new RuntimeException("Password must be at least 6 characters");
-            }
-
-            // 3. Check if phone number already exists
-            if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-                throw new RuntimeException("Phone number already registered");
-            }
-
-            // 4. Check if username already exists
-            if (userRepository.existsByDisplayUsername(request.getUsername())) {
-                throw new RuntimeException("Username already taken");
-            }
-
-            // 5. Find referrer (make this optional for now to fix registration)
-            User referrer = null;
-            if (request.getReferralCode() != null && !request.getReferralCode().trim().isEmpty()) {
-                Optional<User> referrerOpt = userRepository.findByDisplayUsername(request.getReferralCode());
-                if (!referrerOpt.isPresent()) {
-                    throw new RuntimeException("Invalid referral code: " + request.getReferralCode());
-                }
-                referrer = referrerOpt.get();
-                System.out.println("[register] Referrer found: " + referrer.getDisplayUsername());
-            } else {
-                System.out.println("[register] No referral code provided");
-            }
-
-            // 6. Create new user
-            User user = new User();
-            user.setFullName(request.getFullName().trim());
-            user.setDisplayUsername(request.getUsername().trim());
-            user.setPhoneNumber(request.getPhoneNumber().trim());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            
-            // Set referrer if provided
-            if (referrer != null) {
-                user.setReferrer(referrer);
-                if (referrer.getReferrer() != null) {
-                    user.setGrandReferrer(referrer.getReferrer());
-                }
-            }
-            
-            user.setStatus(UserStatus.ACTIVE);
-            user.setRole(Role.USER);
-            user.setTotalBalance(BigDecimal.ZERO);
-            user.setFrozenBalance(BigDecimal.ZERO);
-            user.setReferralEarnings(BigDecimal.ZERO);
-
-            // 7. Save user
-            User savedUser = userRepository.save(user);
-            System.out.println("✓ User saved with ID: " + savedUser.getId());
-
-            // 8. Generate JWT token
-            String jwt = jwtUtils.generateJwtToken(savedUser.getPhoneNumber());
-            System.out.println("✓ JWT token generated");
-
-            // 9. Increment referral usage count if referrer exists (temporarily disabled)
-            System.out.println("Skipping referral usage increment for now");
-            /*
-            if (referrer != null) {
-                try {
-                    referralUsageService.incrementUsage(referrer);
-                    System.out.println("✓ Referral usage incremented");
-                } catch (Exception e) {
-                    System.err.println("Warning: Could not increment referral usage: " + e.getMessage());
-                    // Don't fail registration for this
-                }
-            }
-            */
-
-            System.out.println("=== REGISTRATION COMPLETED SUCCESSFULLY ===");
-            
-            return new AuthDTOs.AuthResponse(jwt, savedUser.getId(), savedUser.getDisplayUsername(), savedUser.getRole().name());
-            
-        } catch (Exception e) {
-            System.err.println("Registration failed: " + e.getMessage());
-            e.printStackTrace();
-            throw e; // Re-throw to ensure proper error handling
+        // Validate passwords match
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
         }
+
+        // Stronger validation
+        if (!isValidPhoneNumber(request.getPhoneNumber())) {
+            throw new RuntimeException("Invalid phone number format. Use international format: +966XXXXXXXXX");
+        }
+        if (!isValidUsername(request.getUsername())) {
+            throw new RuntimeException("Username must be 3-20 characters, alphanumeric only");
+        }
+        if (!isValidPassword(request.getPassword())) {
+            throw new RuntimeException("Password must be at least 6 characters with numbers and letters");
+        }
+        
+        // Check if phone number already exists
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new RuntimeException("Phone number already registered");
+        }
+        
+        // Check if username already exists
+        if (userRepository.existsByDisplayUsername(request.getUsername())) {
+            throw new RuntimeException("Username already taken");
+        }
+        
+        // Find referrer
+        User referrer = userRepository.findByDisplayUsername(request.getReferralCode())
+                .orElseThrow(() -> new RuntimeException("Invalid referral code"));
+        
+        // CHECK REFERRAL USAGE LIMIT - THIS WAS MISSING
+        if (!referralUsageService.canAcceptReferral(referrer)) {
+            throw new RuntimeException("Referral code has reached its usage limit");
+        }
+        
+        // Create new user
+        User user = new User();
+        user.setFullName(request.getFullName());
+        user.setDisplayUsername(request.getUsername());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setReferrer(referrer);
+        user.setGrandReferrer(referrer.getReferrer());
+        user.setStatus(UserStatus.INACTIVE);
+        user.setRole(Role.USER);
+        
+        userRepository.save(user);
+        
+        // INCREMENT REFERRAL USAGE COUNT - THIS WAS MISSING
+        referralUsageService.incrementUsage(referrer);
+        
+        // Generate JWT token
+        String jwt = jwtUtils.generateJwtToken(user.getPhoneNumber());
+        
+        return new AuthDTOs.AuthResponse(jwt, user.getId(), user.getDisplayUsername(), user.getRole().name());
     }
     
     public AuthDTOs.AuthResponse login(AuthDTOs.LoginRequest request) {
@@ -254,8 +209,10 @@ public class UserService {
         response.setCounterStatus(counterStatus);
         
         // Set activation status
-        response.setActivationPending(false); // Users are now active by default
-        if (user.getStatus() == UserStatus.SUSPENDED) {
+        response.setActivationPending(user.getStatus() == UserStatus.INACTIVE);
+        if (user.getStatus() == UserStatus.INACTIVE) {
+            response.setActivationMessage("Account pending admin activation");
+        } else if (user.getStatus() == UserStatus.SUSPENDED) {
             response.setActivationMessage("Account suspended");
         }
         
@@ -460,17 +417,5 @@ public class UserService {
 
     public long getActiveUsersCount() {
         return userRepository.countByStatus(UserStatus.ACTIVE);
-    }
-    
-    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
-    public void incrementReferralUsage(User referrer) {
-        try {
-            referralUsageService.incrementUsage(referrer);
-            System.out.println("✓ Referral usage incremented in separate transaction");
-        } catch (Exception e) {
-            System.err.println("Error incrementing referral usage: " + e.getMessage());
-            // Don't fail registration for this - just log and continue
-            System.out.println("⚠ Continuing despite referral increment error");
-        }
     }
 } 

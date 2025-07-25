@@ -1,29 +1,20 @@
+# application.yml - Complete Configuration
 spring:
   application:
     name: investment-platform
   
-  # Database Configuration - Fixed for better compatibility
+  # Database Configuration
   datasource:
-    url: jdbc:mysql://localhost:3306/investment_platform?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    url: jdbc:mysql://localhost:3306/investment_platform?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    
-    # Connection pool settings for better stability
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 20000
-      validation-timeout: 5000
-      max-lifetime: 1200000
-      leak-detection-threshold: 60000
   
-  # JPA Configuration - Enhanced for debugging
+  # JPA Configuration
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true  # Enable to see SQL queries
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -31,12 +22,6 @@ spring:
         connection:
           characterEncoding: utf8mb4
           useUnicode: true
-        # Enhanced debugging
-        generate_statistics: true
-        jdbc:
-          batch_size: 20
-        order_inserts: true
-        order_updates: true
 
   # Internationalization Support
   messages:
@@ -56,11 +41,11 @@ spring:
       enabled: true
       force: true
 
-  # Flyway Configuration - Safer settings
+  # Flyway Configuration
   flyway:
     enabled: true
     baseline-on-migrate: true
-    validate-on-migrate: false  # Disable for development
+    validate-on-migrate: false
     out-of-order: false
     clean-disabled: false
     locations: classpath:db/migration
@@ -75,43 +60,28 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-  # Enhanced error handling
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: on_param
-    include-exception: false
 
-# Enhanced Logging Configuration for debugging
+# Logging Configuration
 logging:
   level:
-    com.crypto.crypto: DEBUG
     com.crypto.crypto.security: DEBUG
+    org.springframework.security: DEBUG
     com.crypto.crypto.service: DEBUG
     com.crypto.crypto.controller: DEBUG
-    com.crypto.crypto.repository: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.jdbc.core: DEBUG
-    org.springframework.transaction: DEBUG
     root: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# Application Specific Configuration - Enhanced
+# Application Specific Configuration
 app:
-  # JWT Configuration - More secure
+  # JWT Configuration
   jwt:
-    # IMPORTANT: Use a strong secret key (minimum 32 characters)
-    secret: ${JWT_SECRET:investmentPlatform2024SecretKeyForJWTTokenGenerationAndValidationMustBeAtLeast32Characters}
+    # IMPORTANT: Set a strong secret key (minimum 32 characters)
+    secret: ${JWT_SECRET:investmentPlatform2024SecretKeyForJWTTokenGenerationAndValidation1234567890}
     expiration: 86400000 # 24 hours
   
   # Platform Configuration
   platform:
     usdt-wallet: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE"
-    base-url: "http://localhost:8080"  # Changed for development
+    base-url: "https://yourapp.com"
     maintenance-mode: false
     default-locale: ar-SA
     supported-locales: ar-SA,en-US
@@ -155,20 +125,12 @@ app:
     include-timestamp: true
     include-path: true
 
-# Management Endpoints (for monitoring and debugging)
+# Management Endpoints (for monitoring)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,env,beans
+        include: health,info,metrics
   endpoint:
     health:
-      show-details: always
-    env:
-      show-values: always
-
-# Development specific settings
-debug: false
-
-# Additional debugging configuration
-trace: false
+      show-details: when-authorized

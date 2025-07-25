@@ -23,63 +23,69 @@ public class ReferralUsageService {
     private AdminSettingsService adminSettingsService;
     
     public boolean canAcceptReferral(User referrer) {
-        System.out.println("[canAcceptReferral] Checking for referrer: " + (referrer != null ? referrer.getId() : null));
         try {
+            System.out.println("Checking referral usage for user: " + referrer.getDisplayUsername());
+            
+            // Check if referrer has remaining usage limit
             var usage = referralUsageRepository.findByReferrer(referrer);
             if (usage.isEmpty()) {
-                System.out.println("[canAcceptReferral] No usage record, can accept");
-                return true; // First time, create usage record
+                System.out.println("No usage record found - creating new one for user: " + referrer.getId());
+                // First time, create usage record but don't save yet - just check
+                return true;
             }
+            
             var usageRecord = usage.get();
             boolean canAccept = usageRecord.getUsageCount() < usageRecord.getUsageLimit() && usageRecord.getIsActive();
-            System.out.println("[canAcceptReferral] Usage count: " + usageRecord.getUsageCount() + ", Limit: " + usageRecord.getUsageLimit() + ", Active: " + usageRecord.getIsActive() + ", Can accept: " + canAccept);
+            
+            System.out.println("Usage check result: " + canAccept + 
+                             " (count: " + usageRecord.getUsageCount() + 
+                             ", limit: " + usageRecord.getUsageLimit() + 
+                             ", active: " + usageRecord.getIsActive() + ")");
+            
             return canAccept;
+            
         } catch (Exception e) {
-            System.err.println("[canAcceptReferral] Error: " + e.getMessage());
+            // Log the error and return true to allow registration
+            System.err.println("Error checking referral usage for user " + referrer.getId() + ": " + e.getMessage());
             e.printStackTrace();
-            return true; // Allow referral if there's an error
+            System.out.println("Allowing referral due to error in usage check");
+            return true;
         }
     }
     
     public void incrementUsage(User referrer) {
-        System.out.println("[incrementUsage] For referrer: " + (referrer != null ? referrer.getId() : null));
         try {
-            // First try to find existing usage record
-            var usageOpt = referralUsageRepository.findByReferrer(referrer);
+            System.out.println("Incrementing referral usage for user: " + referrer.getDisplayUsername() + " (ID: " + referrer.getId() + ")");
             
-            ReferralUsage usage;
-            if (usageOpt.isPresent()) {
-                // Use existing record
-                usage = usageOpt.get();
-                System.out.println("[incrementUsage] Found existing usage record, count: " + usage.getUsageCount());
-            } else {
-                // Create new record only if one doesn't exist
-                System.out.println("[incrementUsage] No existing record found, creating new one");
-                usage = createNewUsageRecord(referrer);
+            // Ensure the referrer is properly loaded and has an ID
+            if (referrer.getId() == null) {
+                System.err.println("Warning: Referrer ID is null, cannot increment usage");
+                return;
             }
+            
+            var usage = referralUsageRepository.findByReferrer(referrer)
+                .orElseGet(() -> {
+                    System.out.println("Creating new usage record for referrer: " + referrer.getId());
+                    return createNewUsageRecord(referrer);
+                });
             
             int oldCount = usage.getUsageCount();
             usage.setUsageCount(usage.getUsageCount() + 1);
+            
             ReferralUsage savedUsage = referralUsageRepository.save(usage);
-            System.out.println("[incrementUsage] Usage incremented to: " + savedUsage.getUsageCount());
+            System.out.println("✓ Referral usage incremented from " + oldCount + " to " + savedUsage.getUsageCount());
             
         } catch (Exception e) {
-            System.err.println("[incrementUsage] Error: " + e.getMessage());
+            // Log the error but don't fail the registration
+            System.err.println("Error incrementing referral usage for user " + referrer.getId() + ": " + e.getMessage());
             e.printStackTrace();
-            // Don't throw exception - just log and continue
+            System.out.println("⚠ Registration will continue despite referral usage increment error");
         }
     }
     
     private ReferralUsage createNewUsageRecord(User referrer) {
         try {
             System.out.println("Creating new referral usage record for user: " + referrer.getId());
-            
-            // Double-check that no record exists before creating
-            var existingOpt = referralUsageRepository.findByReferrer(referrer);
-            if (existingOpt.isPresent()) {
-                System.out.println("Record already exists, returning existing one");
-                return existingOpt.get();
-            }
             
             ReferralUsage usage = new ReferralUsage();
             usage.setReferrer(referrer);
@@ -98,17 +104,6 @@ public class ReferralUsageService {
         } catch (Exception e) {
             System.err.println("Error creating new usage record for user " + referrer.getId() + ": " + e.getMessage());
             e.printStackTrace();
-            
-            // Try to get existing record if creation failed
-            try {
-                var existingOpt = referralUsageRepository.findByReferrer(referrer);
-                if (existingOpt.isPresent()) {
-                    System.out.println("Found existing record after creation error, using it");
-                    return existingOpt.get();
-                }
-            } catch (Exception ex) {
-                System.err.println("Could not retrieve existing record: " + ex.getMessage());
-            }
             
             // Return a default record without saving if there's an error
             ReferralUsage fallback = new ReferralUsage();

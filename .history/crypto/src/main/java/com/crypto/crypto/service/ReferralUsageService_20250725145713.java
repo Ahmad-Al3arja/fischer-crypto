@@ -44,42 +44,19 @@ public class ReferralUsageService {
     public void incrementUsage(User referrer) {
         System.out.println("[incrementUsage] For referrer: " + (referrer != null ? referrer.getId() : null));
         try {
-            // First try to find existing usage record
-            var usageOpt = referralUsageRepository.findByReferrer(referrer);
-            
-            ReferralUsage usage;
-            if (usageOpt.isPresent()) {
-                // Use existing record
-                usage = usageOpt.get();
-                System.out.println("[incrementUsage] Found existing usage record, count: " + usage.getUsageCount());
-            } else {
-                // Create new record only if one doesn't exist
-                System.out.println("[incrementUsage] No existing record found, creating new one");
-                usage = createNewUsageRecord(referrer);
-            }
-            
-            int oldCount = usage.getUsageCount();
+            var usage = referralUsageRepository.findByReferrer(referrer)
+                .orElse(createNewUsageRecord(referrer));
             usage.setUsageCount(usage.getUsageCount() + 1);
-            ReferralUsage savedUsage = referralUsageRepository.save(usage);
-            System.out.println("[incrementUsage] Usage incremented to: " + savedUsage.getUsageCount());
-            
+            referralUsageRepository.save(usage);
+            System.out.println("[incrementUsage] Usage incremented to: " + usage.getUsageCount());
         } catch (Exception e) {
             System.err.println("[incrementUsage] Error: " + e.getMessage());
-            e.printStackTrace();
-            // Don't throw exception - just log and continue
         }
     }
     
     private ReferralUsage createNewUsageRecord(User referrer) {
         try {
             System.out.println("Creating new referral usage record for user: " + referrer.getId());
-            
-            // Double-check that no record exists before creating
-            var existingOpt = referralUsageRepository.findByReferrer(referrer);
-            if (existingOpt.isPresent()) {
-                System.out.println("Record already exists, returning existing one");
-                return existingOpt.get();
-            }
             
             ReferralUsage usage = new ReferralUsage();
             usage.setReferrer(referrer);
@@ -98,17 +75,6 @@ public class ReferralUsageService {
         } catch (Exception e) {
             System.err.println("Error creating new usage record for user " + referrer.getId() + ": " + e.getMessage());
             e.printStackTrace();
-            
-            // Try to get existing record if creation failed
-            try {
-                var existingOpt = referralUsageRepository.findByReferrer(referrer);
-                if (existingOpt.isPresent()) {
-                    System.out.println("Found existing record after creation error, using it");
-                    return existingOpt.get();
-                }
-            } catch (Exception ex) {
-                System.err.println("Could not retrieve existing record: " + ex.getMessage());
-            }
             
             // Return a default record without saving if there's an error
             ReferralUsage fallback = new ReferralUsage();

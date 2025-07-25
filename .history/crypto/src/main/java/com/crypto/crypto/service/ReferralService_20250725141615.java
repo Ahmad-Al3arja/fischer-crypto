@@ -29,16 +29,6 @@ public class ReferralService {
     private static final BigDecimal DIRECT_COMMISSION_RATE = new BigDecimal("0.12"); // 12%
     private static final BigDecimal GRAND_COMMISSION_RATE = new BigDecimal("0.06"); // 6%
     
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
-        }
-        String phoneNumber = authentication.getName();
-        return userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-    
     public void processReferralCommissions(User referredUser, Deposit deposit) {
         BigDecimal depositAmount = deposit.getAmount();
         
@@ -112,7 +102,7 @@ public class ReferralService {
     }
     
     public UserDTOs.ReferralListResponse getUserReferrals() {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         List<User> directReferrals = userRepository.findByReferrer(user);
         List<UserDTOs.ReferralDetail> referralDetails = directReferrals.stream()
                 .map(this::convertToReferralDetail)
@@ -121,7 +111,7 @@ public class ReferralService {
     }
     
     public UserDTOs.ReferralEarningsResponse getReferralEarnings() {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         List<ReferralEarning> earnings = referralEarningRepository.findByUser(user);
         BigDecimal totalEarnings = earnings.stream()
                 .map(ReferralEarning::getAmount)
@@ -221,7 +211,7 @@ public class ReferralService {
         info.setSubscriptionDate(referral.getSubscriptionDate());
         
         // Calculate total commission earned from this referral
-        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(getCurrentUser(), referral)
+        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(userService.getCurrentUser(), referral)
                 .stream()
                 .map(ReferralEarning::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

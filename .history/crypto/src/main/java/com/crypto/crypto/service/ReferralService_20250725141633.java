@@ -112,7 +112,7 @@ public class ReferralService {
     }
     
     public UserDTOs.ReferralListResponse getUserReferrals() {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         List<User> directReferrals = userRepository.findByReferrer(user);
         List<UserDTOs.ReferralDetail> referralDetails = directReferrals.stream()
                 .map(this::convertToReferralDetail)
@@ -121,7 +121,7 @@ public class ReferralService {
     }
     
     public UserDTOs.ReferralEarningsResponse getReferralEarnings() {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         List<ReferralEarning> earnings = referralEarningRepository.findByUser(user);
         BigDecimal totalEarnings = earnings.stream()
                 .map(ReferralEarning::getAmount)
@@ -221,7 +221,7 @@ public class ReferralService {
         info.setSubscriptionDate(referral.getSubscriptionDate());
         
         // Calculate total commission earned from this referral
-        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(getCurrentUser(), referral)
+        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(userService.getCurrentUser(), referral)
                 .stream()
                 .map(ReferralEarning::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

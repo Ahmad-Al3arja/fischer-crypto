@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,104 +52,148 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public AuthDTOs.AuthResponse register(AuthDTOs.RegisterRequest request) {
         System.out.println("[register] Start: " + request.getPhoneNumber());
-        
         try {
+            System.out.println("=== REGISTRATION DEBUG START ===");
+            System.out.println("Registration request for: " + request.getPhoneNumber());
+            System.out.println("Username: " + request.getUsername());
+            System.out.println("Full name: " + request.getFullName());
+            System.out.println("Referral code: " + request.getReferralCode());
+            
             // 1. Validate passwords match
             if (!request.getPassword().equals(request.getConfirmPassword())) {
+                System.out.println("[register] Passwords do not match");
                 throw new RuntimeException("Passwords do not match");
             }
+            System.out.println("[register] Passwords match");
 
-            // 2. Enhanced validation
-            if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
-                throw new RuntimeException("Full name is required");
+            // 2. Improved validation with better error messages
+            if (!isValidPhoneNumber(request.getPhoneNumber())) {
+                System.out.println("[register] Invalid phone number format: " + request.getPhoneNumber());
+                throw new RuntimeException("Invalid phone number format. Please use a valid international format (e.g., +966501234567)");
             }
+            System.out.println("[register] Phone number valid");
             
-            if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
-                throw new RuntimeException("Username is required");
+            if (!isValidUsername(request.getUsername())) {
+                System.out.println("[register] Invalid username format: " + request.getUsername());
+                throw new RuntimeException("Username must be 3-20 characters, alphanumeric only");
             }
+            System.out.println("[register] Username valid");
             
-            if (request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty()) {
-                throw new RuntimeException("Phone number is required");
-            }
-            
-            if (request.getPassword() == null || request.getPassword().length() < 6) {
+            if (!isValidPassword(request.getPassword())) {
+                System.out.println("[register] Invalid password format: " + request.getPassword());
                 throw new RuntimeException("Password must be at least 6 characters");
             }
-
+            System.out.println("[register] Password valid");
+            
             // 3. Check if phone number already exists
             if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+                System.out.println("[register] Phone number already registered: " + request.getPhoneNumber());
                 throw new RuntimeException("Phone number already registered");
             }
-
+            System.out.println("[register] Phone number not in use");
+            
             // 4. Check if username already exists
             if (userRepository.existsByDisplayUsername(request.getUsername())) {
+                System.out.println("[register] Username already taken: " + request.getUsername());
                 throw new RuntimeException("Username already taken");
             }
-
-            // 5. Find referrer (make this optional for now to fix registration)
-            User referrer = null;
-            if (request.getReferralCode() != null && !request.getReferralCode().trim().isEmpty()) {
-                Optional<User> referrerOpt = userRepository.findByDisplayUsername(request.getReferralCode());
-                if (!referrerOpt.isPresent()) {
-                    throw new RuntimeException("Invalid referral code: " + request.getReferralCode());
-                }
-                referrer = referrerOpt.get();
-                System.out.println("[register] Referrer found: " + referrer.getDisplayUsername());
-            } else {
-                System.out.println("[register] No referral code provided");
-            }
-
-            // 6. Create new user
-            User user = new User();
-            user.setFullName(request.getFullName().trim());
-            user.setDisplayUsername(request.getUsername().trim());
-            user.setPhoneNumber(request.getPhoneNumber().trim());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            System.out.println("[register] Username available");
             
-            // Set referrer if provided
-            if (referrer != null) {
+            // 5. Find referrer with better error handling
+            User referrer = null;
+            try {
+                referrer = userRepository.findByDisplayUsername(request.getReferralCode())
+                        .orElseThrow(() -> new RuntimeException("Invalid referral code: " + request.getReferralCode()));
+                System.out.println("[register] Referrer found: " + referrer.getDisplayUsername());
+            } catch (Exception e) {
+                System.err.println("Error finding referrer: " + e.getMessage());
+                System.out.println("[register] Invalid referral code: " + request.getReferralCode());
+                throw new RuntimeException("Invalid referral code");
+            }
+            
+            // 6. Check referral usage limit with error handling
+            try {
+                if (!referralUsageService.canAcceptReferral(referrer)) {
+                    System.out.println("[register] Referrer cannot accept more referrals: " + referrer.getDisplayUsername());
+                    throw new RuntimeException("Referral code has reached its usage limit");
+                }
+                System.out.println("[register] Referral usage limit OK");
+            } catch (Exception e) {
+                System.err.println("Error checking referral usage: " + e.getMessage());
+                // Continue anyway - don't fail registration for this
+                System.out.println("⚠ Continuing despite referral usage check error");
+            }
+            
+            // 7. Create new user with proper error handling
+            User user = new User();
+            try {
+                user.setFullName(request.getFullName());
+                user.setDisplayUsername(request.getUsername());
+                user.setPhoneNumber(request.getPhoneNumber());
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
                 user.setReferrer(referrer);
+                
+                // Set grand referrer safely
                 if (referrer.getReferrer() != null) {
                     user.setGrandReferrer(referrer.getReferrer());
                 }
+                
+                user.setStatus(UserStatus.ACTIVE);
+                user.setRole(Role.USER);
+                user.setTotalBalance(BigDecimal.ZERO);
+                user.setFrozenBalance(BigDecimal.ZERO);
+                user.setReferralEarnings(BigDecimal.ZERO);
+                
+                System.out.println("✓ User object created");
+            } catch (Exception e) {
+                System.err.println("Error creating user object: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error creating user account");
             }
             
-            user.setStatus(UserStatus.ACTIVE);
-            user.setRole(Role.USER);
-            user.setTotalBalance(BigDecimal.ZERO);
-            user.setFrozenBalance(BigDecimal.ZERO);
-            user.setReferralEarnings(BigDecimal.ZERO);
-
-            // 7. Save user
-            User savedUser = userRepository.save(user);
-            System.out.println("✓ User saved with ID: " + savedUser.getId());
-
-            // 8. Generate JWT token
-            String jwt = jwtUtils.generateJwtToken(savedUser.getPhoneNumber());
-            System.out.println("✓ JWT token generated");
-
-            // 9. Increment referral usage count if referrer exists (temporarily disabled)
-            System.out.println("Skipping referral usage increment for now");
-            /*
-            if (referrer != null) {
-                try {
-                    referralUsageService.incrementUsage(referrer);
-                    System.out.println("✓ Referral usage incremented");
-                } catch (Exception e) {
-                    System.err.println("Warning: Could not increment referral usage: " + e.getMessage());
-                    // Don't fail registration for this
-                }
+            // 8. Save user with transaction handling
+            User savedUser = null;
+            try {
+                savedUser = userRepository.save(user);
+                System.out.println("✓ User saved with ID: " + savedUser.getId());
+            } catch (Exception e) {
+                System.err.println("Error saving user: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error saving user account: " + e.getMessage());
             }
-            */
-
-            System.out.println("=== REGISTRATION COMPLETED SUCCESSFULLY ===");
+            
+            // 10. Generate JWT token
+            String jwt = null;
+            try {
+                jwt = jwtUtils.generateJwtToken(savedUser.getPhoneNumber());
+                System.out.println("✓ JWT token generated");
+            } catch (Exception e) {
+                System.err.println("Error generating JWT: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error generating authentication token");
+            }
+            
+            System.out.println("=== REGISTRATION DEBUG END ===");
+            
+            // 11. Increment referral usage count (non-critical, outside main transaction)
+            try {
+                referralUsageService.incrementUsage(referrer);
+                System.out.println("✓ Referral usage incremented");
+            } catch (Exception e) {
+                System.err.println("Error incrementing referral usage: " + e.getMessage());
+                // Don't fail registration for this - just log and continue
+                System.out.println("⚠ Continuing despite referral increment error");
+            }
             
             return new AuthDTOs.AuthResponse(jwt, savedUser.getId(), savedUser.getDisplayUsername(), savedUser.getRole().name());
             
+        } catch (RuntimeException e) {
+            System.err.println("Registration failed with RuntimeException: " + e.getMessage());
+            throw e; // Re-throw known exceptions
         } catch (Exception e) {
-            System.err.println("Registration failed: " + e.getMessage());
+            System.err.println("Registration failed with unexpected exception: " + e.getMessage());
             e.printStackTrace();
-            throw e; // Re-throw to ensure proper error handling
+            throw new RuntimeException("Registration failed: " + e.getMessage());
         }
     }
     
@@ -460,17 +503,5 @@ public class UserService {
 
     public long getActiveUsersCount() {
         return userRepository.countByStatus(UserStatus.ACTIVE);
-    }
-    
-    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
-    public void incrementReferralUsage(User referrer) {
-        try {
-            referralUsageService.incrementUsage(referrer);
-            System.out.println("✓ Referral usage incremented in separate transaction");
-        } catch (Exception e) {
-            System.err.println("Error incrementing referral usage: " + e.getMessage());
-            // Don't fail registration for this - just log and continue
-            System.out.println("⚠ Continuing despite referral increment error");
-        }
     }
 } 

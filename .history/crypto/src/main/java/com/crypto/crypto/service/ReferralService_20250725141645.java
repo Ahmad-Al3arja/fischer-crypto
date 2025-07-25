@@ -221,7 +221,7 @@ public class ReferralService {
         info.setSubscriptionDate(referral.getSubscriptionDate());
         
         // Calculate total commission earned from this referral
-        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(getCurrentUser(), referral)
+        BigDecimal commissionEarned = referralEarningRepository.findByReferrerAndReferredUser(userService.getCurrentUser(), referral)
                 .stream()
                 .map(ReferralEarning::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

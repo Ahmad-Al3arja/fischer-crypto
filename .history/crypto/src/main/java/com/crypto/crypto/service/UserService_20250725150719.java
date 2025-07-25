@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -129,9 +128,7 @@ public class UserService {
             String jwt = jwtUtils.generateJwtToken(savedUser.getPhoneNumber());
             System.out.println("✓ JWT token generated");
 
-            // 9. Increment referral usage count if referrer exists (temporarily disabled)
-            System.out.println("Skipping referral usage increment for now");
-            /*
+            // 9. Increment referral usage count if referrer exists
             if (referrer != null) {
                 try {
                     referralUsageService.incrementUsage(referrer);
@@ -141,7 +138,6 @@ public class UserService {
                     // Don't fail registration for this
                 }
             }
-            */
 
             System.out.println("=== REGISTRATION COMPLETED SUCCESSFULLY ===");
             
