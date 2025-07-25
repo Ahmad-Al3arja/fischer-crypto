@@ -61,9 +61,9 @@ public class ReferralService {
                                  BigDecimal commissionAmount, CommissionType commissionType) {
         // Create referral earning record
         ReferralEarning earning = new ReferralEarning();
-        earning.setUser(referrer); // The user who gets the commission
+        earning.setUser(referredUser); // The user who made the deposit
         earning.setReferrer(referrer); // The user who gets the commission
-        earning.setReferredUser(referredUser); // The user who made the deposit
+        earning.setReferredUser(referredUser); // The referred user (same as user)
         earning.setDeposit(deposit); // The deposit that triggered the commission
         earning.setAmount(commissionAmount);
         earning.setCommissionType(commissionType);
@@ -141,8 +141,6 @@ public class ReferralService {
         earning.setReferredUser(referredUser);
         earning.setAmount(amount);
         earning.setCommissionType(type);
-        // Note: deposit field is not set here as this method is used for general referral earnings
-        // The processCommission method handles deposit-specific referral earnings
         referralEarningRepository.save(earning);
         
         // Update referrer's total referral earnings

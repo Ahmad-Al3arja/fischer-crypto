@@ -1,0 +1,415 @@
+{
+    "info": {
+      "name": "Investment Platform - Enhanced Test Suite",
+      "description": "Comprehensive test suite for the Investment Platform API covering all endpoints, security scenarios, performance tests, and edge cases. Enhanced with better error handling, performance monitoring, and test reporting.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "version": "2.0.0"
+    },
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8080",
+        "type": "string",
+        "description": "Base URL for the API server"
+      },
+      {
+        "key": "admin_token",
+        "value": "",
+        "type": "string",
+        "description": "JWT token for admin user"
+      },
+      {
+        "key": "user_token",
+        "value": "",
+        "type": "string",
+        "description": "JWT token for test user 1"
+      },
+      {
+        "key": "user2_token",
+        "value": "",
+        "type": "string",
+        "description": "JWT token for test user 2"
+      },
+      {
+        "key": "admin_user_id",
+        "value": "",
+        "type": "string",
+        "description": "Admin user ID"
+      },
+      {
+        "key": "test_user_id",
+        "value": "",
+        "type": "string",
+        "description": "Test user 1 ID"
+      },
+      {
+        "key": "test_user2_id",
+        "value": "",
+        "type": "string",
+        "description": "Test user 2 ID"
+      },
+      {
+        "key": "test_plan_id",
+        "value": "",
+        "type": "string",
+        "description": "Test plan ID for transactions"
+      },
+      {
+        "key": "test_deposit_id",
+        "value": "",
+        "type": "string",
+        "description": "Test deposit ID"
+      },
+      {
+        "key": "test_withdrawal_id",
+        "value": "",
+        "type": "string",
+        "description": "Test withdrawal ID"
+      },
+      {
+        "key": "test_promo_code_id",
+        "value": "",
+        "type": "string",
+        "description": "Test promo code ID"
+      },
+      {
+        "key": "test_wallet_change_id",
+        "value": "",
+        "type": "string",
+        "description": "Test wallet change request ID"
+      },
+      {
+        "key": "random_phone",
+        "value": "",
+        "type": "string",
+        "description": "Random phone number for testing"
+      },
+      {
+        "key": "random_username",
+        "value": "",
+        "type": "string",
+        "description": "Random username for testing"
+      },
+      {
+        "key": "test_start_time",
+        "value": "",
+        "type": "string",
+        "description": "Test suite start time"
+      },
+      {
+        "key": "test_results",
+        "value": "{}",
+        "type": "string",
+        "description": "Test results tracking"
+      }
+    ],
+    "item": [
+      {
+        "name": "🚀 Setup & Health Checks",
+        "description": "Initial setup and health check tests to ensure the API is ready for testing",
+        "item": [
+          {
+            "name": "Health Check - Test Endpoint",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/test",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "test"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Server is running', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response contains success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Test endpoint working');",
+                    "});",
+                    "",
+                    "pm.test('Response time is acceptable', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Initialize Test Plans",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/test/insert-plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "test", "insert-plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plans initialized successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('9 plans created', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.count).to.equal(9);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Plans",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plans retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plans array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.plans).to.be.an('array');",
+                    "    if (response.plans.length > 0) {",
+                    "        pm.environment.set('test_plan_id', response.plans[0].id);",
+                    "    }",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Generate Random Test Data",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/test",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "test"]
+              }
+            },
+            "event": [
+              {
+                "listen": "prerequest",
+                "script": {
+                  "exec": [
+                    "// Generate random test data",
+                    "const timestamp = Date.now();",
+                    "const randomNum = Math.floor(Math.random() * 10000);",
+                    "",
+                    "pm.environment.set('random_phone', '966555' + String(randomNum).padStart(6, '0'));",
+                    "pm.environment.set('random_username', 'testuser' + timestamp);",
+                    "pm.environment.set('test_start_time', new Date().toISOString());",
+                    "",
+                    "console.log('Generated phone:', pm.environment.get('random_phone'));",
+                    "console.log('Generated username:', pm.environment.get('random_username'));",
+                    "console.log('Test suite started at:', pm.environment.get('test_start_time'));"
+                  ]
+                }
+              },
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Random data generated', function () {",
+                    "    pm.expect(pm.environment.get('random_phone')).to.not.be.empty;",
+                    "    pm.expect(pm.environment.get('random_username')).to.not.be.empty;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🔐 Authentication Module",
+        "description": "Complete authentication testing including registration, login, logout, and password management",
+        "item": [
+          {
+            "name": "Admin Login",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"1234567890\",\n    \"password\": \"admin123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Admin login successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('admin_token', response.token);",
+                    "    pm.environment.set('admin_user_id', response.userId);",
+                    "});",
+                    "",
+                    "pm.test('Admin role confirmed', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.role).to.equal('ADMIN');",
+                    "});",
+                    "",
+                    "pm.test('Response time is acceptable', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Valid",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Test User One\",\n    \"username\": \"{{random_username}}\",\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User registration successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('user_token', response.token);",
+                    "    pm.environment.set('test_user_id', response.userId);",
+                    "});",
+                    "",
+                    "pm.test('User role confirmed', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.role).to.equal('USER');",
+                    "});",
+                    "",
+                    "pm.test('User data is correct', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.fullName).to.equal('Test User One');",
+                    "    pm.expect(response.username).to.equal(pm.environment.get('random_username'));",
+                    "    pm.expect(response.phoneNumber).to.equal(pm.environment.get('random_phone'));",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global pre-request script",
+            "// Set default values if not already set",
+            "if (!pm.environment.get('base_url')) {",
+            "    pm.environment.set('base_url', 'http://localhost:8080');",
+            "}",
+            "",
+            "// Initialize test results if not exists",
+            "if (!pm.environment.get('test_results')) {",
+            "    pm.environment.set('test_results', JSON.stringify({",
+            "        total: 0,",
+            "        passed: 0,",
+            "        failed: 0,",
+            "        startTime: new Date().toISOString()",
+            "    }));",
+            "}"
+          ]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global test script",
+            "// Log response time for performance monitoring",
+            "if (pm.response.responseTime > 5000) {",
+            "    console.warn('⚠️ Slow response detected: ' + pm.response.responseTime + 'ms for ' + pm.request.url);",
+            "}",
+            "",
+            "// Log errors for debugging",
+            "if (pm.response.code >= 400) {",
+            "    console.log('❌ Error Response: ' + pm.response.code + ' - ' + pm.response.text());",
+            "}",
+            "",
+            "// Update test results",
+            "try {",
+            "    const results = JSON.parse(pm.environment.get('test_results'));",
+            "    results.total++;",
+            "    if (pm.response.code >= 200 && pm.response.code < 300) {",
+            "        results.passed++;",
+            "    } else {",
+            "        results.failed++;",
+            "    }",
+            "    pm.environment.set('test_results', JSON.stringify(results));",
+            "} catch (e) {",
+            "    console.log('Error updating test results:', e);",
+            "}"
+          ]
+        }
+      }
+    ]
+  }

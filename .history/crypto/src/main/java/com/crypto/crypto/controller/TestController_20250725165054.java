@@ -36,44 +36,20 @@ public class TestController {
         }
     }
     
-    @GetMapping("/ping")
-    public ResponseEntity<Map<String, Object>> ping() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "pong");
-        response.put("timestamp", System.currentTimeMillis());
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> response = new HashMap<>();
-        Map<String, Object> details = new HashMap<>();
-        
         try {
-            // Test database connection
-            long planCount = planRepository.count();
-            details.put("database", "UP");
-            details.put("plans_count", planCount);
-            
-            // Test application status
-            details.put("application", "UP");
-            details.put("version", "1.0.0");
-            
+            // Basic health check - test database connection
+            planRepository.count();
             response.put("status", "UP");
             response.put("message", "Application is healthy");
             response.put("timestamp", System.currentTimeMillis());
-            response.put("details", details);
-            
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            details.put("database", "DOWN");
-            details.put("error", e.getMessage());
-            
             response.put("status", "DOWN");
-            response.put("message", "Application is unhealthy");
+            response.put("message", "Application is unhealthy: " + e.getMessage());
             response.put("timestamp", System.currentTimeMillis());
-            response.put("details", details);
-            
             return ResponseEntity.status(503).body(response);
         }
     }

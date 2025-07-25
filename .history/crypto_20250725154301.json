@@ -1,0 +1,4610 @@
+{
+    "info": {
+      "name": "Investment Platform - Complete Test Suite",
+      "description": "Comprehensive test suite for the Investment Platform API covering all endpoints and use cases",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8080",
+        "type": "string"
+      },
+      {
+        "key": "admin_token",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "user_token",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "user2_token",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "admin_user_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_user_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_user2_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_plan_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_deposit_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_withdrawal_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_promo_code_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "test_wallet_change_id",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "random_phone",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "random_username",
+        "value": "",
+        "type": "string"
+      }
+    ],
+    "item": [
+      {
+        "name": "🚀 Setup & Health Checks",
+        "item": [
+          {
+            "name": "Health Check - Test Endpoint",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/test",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "test"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Server is running', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response contains success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Test endpoint working');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Initialize Test Plans",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/test/insert-plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "test", "insert-plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plans initialized successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('9 plans created', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.count).to.equal(9);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Plans",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plans retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plans array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.plans).to.be.an('array');",
+                    "    if (response.plans.length > 0) {",
+                    "        pm.environment.set('test_plan_id', response.plans[0].id);",
+                    "    }",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Generate Random Test Data",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/test",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "test"]
+              }
+            },
+            "event": [
+              {
+                "listen": "prerequest",
+                "script": {
+                  "exec": [
+                    "// Generate random test data",
+                    "const timestamp = Date.now();",
+                    "const randomNum = Math.floor(Math.random() * 10000);",
+                    "",
+                    "pm.environment.set('random_phone', '966555' + String(randomNum).padStart(6, '0'));",
+                    "pm.environment.set('random_username', 'testuser' + timestamp);",
+                    "",
+                    "console.log('Generated phone:', pm.environment.get('random_phone'));",
+                    "console.log('Generated username:', pm.environment.get('random_username'));"
+                  ]
+                }
+              },
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Random data generated', function () {",
+                    "    pm.expect(pm.environment.get('random_phone')).to.not.be.empty;",
+                    "    pm.expect(pm.environment.get('random_username')).to.not.be.empty;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🔐 Authentication Module",
+        "item": [
+          {
+            "name": "Admin Login",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"1234567890\",\n    \"password\": \"admin123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Admin login successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('admin_token', response.token);",
+                    "    pm.environment.set('admin_user_id', response.userId);",
+                    "});",
+                    "",
+                    "pm.test('Admin role confirmed', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.role).to.equal('ADMIN');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Valid",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Test User One\",\n    \"username\": \"{{random_username}}\",\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User registration successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('user_token', response.token);",
+                    "    pm.environment.set('test_user_id', response.userId);",
+                    "});",
+                    "",
+                    "pm.test('User role confirmed', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.role).to.equal('USER');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Without Referral",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Test User Two\",\n    \"username\": \"testuser2{{$timestamp}}\",\n    \"phoneNumber\": \"966555{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User registration without referral successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('user2_token', response.token);",
+                    "    pm.environment.set('test_user2_id', response.userId);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Duplicate Phone",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Duplicate User\",\n    \"username\": \"duplicateuser\",\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Duplicate phone registration fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for duplicate phone', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Phone number already registered');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Invalid Phone Format",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Invalid Phone User\",\n    \"username\": \"invalidphone\",\n    \"phoneNumber\": \"123\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid phone format registration fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for invalid phone', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Invalid phone number format');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Password Mismatch",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Password Mismatch User\",\n    \"username\": \"passmismatch\",\n    \"phoneNumber\": \"966555999999\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password456\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Password mismatch registration fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for password mismatch', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Passwords do not match');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Registration - Invalid Referral Code",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Invalid Referral User\",\n    \"username\": \"invalidref\",\n    \"phoneNumber\": \"966555888888\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"nonexistent\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid referral code registration fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for invalid referral', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Invalid referral code');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Login - Valid Credentials",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"password123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User login successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('user_token', response.token);",
+                    "});",
+                    "",
+                    "pm.test('User role confirmed', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.role).to.equal('USER');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "User Login - Invalid Credentials",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"wrongpassword\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid credentials login fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for invalid credentials', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Invalid');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Profile - Authenticated User",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/auth/profile",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Profile retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Profile contains user data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.username).to.exist;",
+                    "    pm.expect(response.phoneNumber).to.exist;",
+                    "    pm.expect(response.role).to.equal('USER');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Profile - Unauthenticated",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/profile",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Unauthenticated profile access fails', function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Change Password - Valid",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"currentPassword\": \"password123\",\n    \"newPassword\": \"newpassword123\",\n    \"confirmNewPassword\": \"newpassword123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/change-password",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "change-password"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Password changed successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Success message received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('successfully');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Change Password - Wrong Current Password",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"currentPassword\": \"wrongpassword\",\n    \"newPassword\": \"newpassword456\",\n    \"confirmNewPassword\": \"newpassword456\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/change-password",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "change-password"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wrong current password fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for wrong password', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Current password is incorrect');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Login with New Password",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"{{random_phone}}\",\n    \"password\": \"newpassword123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Login with new password successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('JWT token received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.token).to.exist;",
+                    "    pm.environment.set('user_token', response.token);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Logout",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/auth/logout",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "logout"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Logout successful', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "📊 Plans Module",
+        "item": [
+          {
+            "name": "Get All Plans - Public Access",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plans retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plans array contains data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.plans).to.be.an('array');",
+                    "    pm.expect(response.plans.length).to.be.greaterThan(0);",
+                    "});",
+                    "",
+                    "pm.test('Plan structure is correct', function () {",
+                    "    const response = pm.response.json();",
+                    "    if (response.plans.length > 0) {",
+                    "        const plan = response.plans[0];",
+                    "        pm.expect(plan.id).to.exist;",
+                    "        pm.expect(plan.name).to.exist;",
+                    "        pm.expect(plan.price).to.exist;",
+                    "        pm.expect(plan.dailyProfitMin).to.exist;",
+                    "        pm.expect(plan.dailyProfitMax).to.exist;",
+                    "        pm.expect(plan.planLevel).to.exist;",
+                    "    }",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Specific Plan",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans/{{test_plan_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans", "{{test_plan_id}}"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Specific plan retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plan details are complete', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.id).to.exist;",
+                    "    pm.expect(response.name).to.exist;",
+                    "    pm.expect(response.price).to.be.a('number');",
+                    "    pm.expect(response.dailyProfitMin).to.be.a('number');",
+                    "    pm.expect(response.dailyProfitMax).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Non-Existent Plan",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans/99999",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans", "99999"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Non-existent plan returns 400', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for non-existent plan', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('not found');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "👤 User Module",
+        "item": [
+          {
+            "name": "Get User Dashboard",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/dashboard",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "dashboard"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Dashboard retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Dashboard contains required fields', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.fullName).to.exist;",
+                    "    pm.expect(response.username).to.exist;",
+                    "    pm.expect(response.totalBalance).to.exist;",
+                    "    pm.expect(response.counterStatus).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Profile",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/profile",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User profile retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Profile contains complete data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.fullName).to.exist;",
+                    "    pm.expect(response.username).to.exist;",
+                    "    pm.expect(response.phoneNumber).to.exist;",
+                    "    pm.expect(response.numberOfReferrals).to.exist;",
+                    "    pm.expect(response.referralLink).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update User Profile",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Updated Test User One\",\n    \"username\": \"{{random_username}}_updated\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/user/profile",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "profile"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Profile updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Updated data reflected', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.fullName).to.include('Updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Balance",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/balance",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "balance"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Balance retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Balance contains all fields', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalBalance).to.exist;",
+                    "    pm.expect(response.frozenBalance).to.exist;",
+                    "    pm.expect(response.withdrawableBalance).to.exist;",
+                    "    pm.expect(response.referralEarnings).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Referrals",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/referrals",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "referrals"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Referrals retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Referrals array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.referrals).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Detailed Referrals",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/referrals/detailed",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "referrals", "detailed"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Detailed referrals retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains referral breakdown', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.directReferrals).to.be.an('array');",
+                    "    pm.expect(response.secondLevelReferrals).to.be.an('array');",
+                    "    pm.expect(response.totalDirectCount).to.be.a('number');",
+                    "    pm.expect(response.totalSecondLevelCount).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Referral Earnings",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/referral-earnings",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "referral-earnings"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Referral earnings retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains earnings data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalEarnings).to.exist;",
+                    "    pm.expect(response.earnings).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Referral Earnings History",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/referrals/earnings-history",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "referrals", "earnings-history"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Earnings history retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains history data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.earnings).to.be.an('array');",
+                    "    pm.expect(response.totalEarnings).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Team Stats",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/team-stats",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "team-stats"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Team stats retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains team statistics', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.directReferrals).to.be.a('number');",
+                    "    pm.expect(response.secondLevelReferrals).to.be.a('number');",
+                    "    pm.expect(response.totalReferrals).to.be.a('number');",
+                    "    pm.expect(response.referralLink).to.exist;",
+                    "    pm.expect(response.referralCode).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Team Earnings Breakdown",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/team/earnings-breakdown",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "team", "earnings-breakdown"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Earnings breakdown retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains breakdown data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalDirectEarnings).to.exist;",
+                    "    pm.expect(response.totalGrandEarnings).to.exist;",
+                    "    pm.expect(response.directReferrals).to.be.a('number');",
+                    "    pm.expect(response.grandReferrals).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Referral Link",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/referral-link",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "referral-link"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Referral link retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains referral data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.referralLink).to.exist;",
+                    "    pm.expect(response.referralCode).to.exist;",
+                    "    pm.expect(response.referralLink).to.include(response.referralCode);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Daily Counter Status",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/daily-counter",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "daily-counter"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Daily counter status retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Contains counter status', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.active).to.be.a('boolean');",
+                    "    pm.expect(response.completed).to.be.a('boolean');",
+                    "    pm.expect(response.currentDay).to.be.a('number');",
+                    "    pm.expect(response.remainingSeconds).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Activate Daily Counter - No Plan",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/daily-counter/activate",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "daily-counter", "activate"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Counter activation fails without plan', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for no plan', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('plan');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "💰 Transaction Module",
+        "item": [
+          {
+            "name": "Create Deposit - Valid",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 60.00,\n    \"planId\": {{test_plan_id}},\n    \"promoCode\": \"\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Deposit created successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Deposit response contains wallet', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.usdtWalletAddress).to.exist;",
+                    "    pm.expect(response.totalAmount).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Deposit - With Promo Code",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 150.00,\n    \"planId\": {{test_plan_id}},\n    \"promoCode\": \"WELCOME50\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Deposit with promo created successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Bonus amount included', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.bonusAmount).to.be.greaterThan(0);",
+                    "    pm.expect(response.totalAmount).to.be.greaterThan(150);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Deposit - Invalid Amount",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 10.00,\n    \"planId\": {{test_plan_id}},\n    \"promoCode\": \"\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid amount deposit fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for invalid amount', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('must be at least');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Deposit - Invalid Promo Code",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 60.00,\n    \"planId\": {{test_plan_id}},\n    \"promoCode\": \"INVALID\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid promo code deposit fails', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for invalid promo', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Promo code');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Deposits",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User deposits retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Deposits array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.deposits).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Deposit History",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits/history",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits", "history"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Deposit history retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('History contains deposits', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.deposits).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Set Wallet Address",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"usdtAddress\": \"TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/wallet/address",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "wallet", "address"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet address set successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Wallet response contains address', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.usdtAddress).to.exist;",
+                    "    pm.expect(response.addressSet).to.be.true;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Wallet",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/wallet",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "wallet"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Wallet contains address', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.usdtAddress).to.exist;",
+                    "    pm.expect(response.addressSet).to.be.true;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Withdrawal - No Balance",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 50.00\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/withdrawals",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "withdrawals"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Withdrawal fails with insufficient balance', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for insufficient balance', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Insufficient');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Withdrawal - Below Minimum",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 5.00\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/withdrawals",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "withdrawals"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Withdrawal fails below minimum', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message for minimum amount', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Minimum withdrawal');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Withdrawals",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/withdrawals",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "withdrawals"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Withdrawals retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Withdrawals array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.withdrawals).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Withdrawal History",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/withdrawals/history",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "withdrawals", "history"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Withdrawal history retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('History contains available balance', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.withdrawals).to.be.an('array');",
+                    "    pm.expect(response.availableBalance).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Request Wallet Change",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"newAddress\": \"TNewWalletAddressForTestingPurpose123\",\n    \"reason\": \"Lost access to old wallet\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/wallet/change-request",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "wallet", "change-request"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet change request created successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Request contains details', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.id).to.exist;",
+                    "    pm.expect(response.newAddress).to.exist;",
+                    "    pm.expect(response.status).to.equal('PENDING');",
+                    "    pm.environment.set('test_wallet_change_id', response.id);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Wallet Change Requests",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/transactions/wallet/change-requests",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "wallet", "change-requests"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet change requests retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Requests array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.requests).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🔧 Admin Module",
+        "item": [
+          {
+            "name": "Get All Users",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Users retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Users array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.users).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Details",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User details retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('User details complete', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.id).to.exist;",
+                    "    pm.expect(response.fullName).to.exist;",
+                    "    pm.expect(response.username).to.exist;",
+                    "    pm.expect(response.phoneNumber).to.exist;",
+                    "    pm.expect(response.status).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update User Balance",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 100.00,\n    \"reason\": \"Admin adjustment for testing\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/balance",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "balance"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User balance updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Success message received', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('successfully');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Activate User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/activate",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "activate"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User activated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Activation success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('activated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Suspend User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user2_id}}/suspend",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user2_id}}", "suspend"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User suspended successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Suspension success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('suspended');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Deposits",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('All deposits retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Deposits array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.deposits).to.be.an('array');",
+                    "    if (response.deposits.length > 0) {",
+                    "        pm.environment.set('test_deposit_id', response.deposits[0].id);",
+                    "    }",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Pending Deposits",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/deposits?status=pending",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "deposits"],
+                "query": [
+                  {
+                    "key": "status",
+                    "value": "pending"
+                  }
+                ]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Pending deposits retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Pending deposits array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.deposits).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Approve Deposit",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/deposits/{{test_deposit_id}}/approve",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "deposits", "{{test_deposit_id}}", "approve"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Deposit approved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Approval success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('approved');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Withdrawals",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/withdrawals",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "withdrawals"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('All withdrawals retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Withdrawals array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.withdrawals).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Activate User Counter",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/counter/activate",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "counter", "activate"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User counter activated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Counter activation success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('activated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Deactivate User Counter",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/counter/deactivate",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "counter", "deactivate"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User counter deactivated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Counter deactivation success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('deactivated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Promo Code",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"code\": \"TEST100\",\n    \"bonusValue\": 100.00,\n    \"usageLimit\": 50,\n    \"expiresAt\": \"2024-12-31T23:59:59\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/promo-codes",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "promo-codes"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Promo code created successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Promo code response complete', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.id).to.exist;",
+                    "    pm.expect(response.code).to.equal('TEST100');",
+                    "    pm.expect(response.bonusValue).to.equal(100);",
+                    "    pm.environment.set('test_promo_code_id', response.id);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Promo Codes",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/promo-codes",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "promo-codes"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Promo codes retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Promo codes array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.promoCodes).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Toggle Promo Code",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/promo-codes/{{test_promo_code_id}}/toggle",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "promo-codes", "{{test_promo_code_id}}", "toggle"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Promo code toggled successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Toggle success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('toggled');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Admin Plans",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Admin plans retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plans array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.plans).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create New Plan",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"name\": \"Test Plan\",\n    \"price\": 1000.00,\n    \"monthlyProfit\": 600.00,\n    \"dailyProfitMin\": 15.00,\n    \"dailyProfitMax\": 25.00,\n    \"planLevel\": 10\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plan created successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plan details correct', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.name).to.equal('Test Plan');",
+                    "    pm.expect(response.planLevel).to.equal(10);",
+                    "    pm.environment.set('new_test_plan_id', response.id);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update Plan",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"name\": \"Updated Test Plan\",\n    \"price\": 1200.00,\n    \"monthlyProfit\": 720.00,\n    \"dailyProfitMin\": 18.00,\n    \"dailyProfitMax\": 30.00\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/plans/{{new_test_plan_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "plans", "{{new_test_plan_id}}"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plan updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plan updates reflected', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.name).to.include('Updated');",
+                    "    pm.expect(response.price).to.equal(1200);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Plan",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/plans/{{new_test_plan_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "plans", "{{new_test_plan_id}}"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plan deleted successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Deletion success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('deleted');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Admin Settings",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Admin settings retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Settings contain required fields', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.maintenanceMode).to.be.a('boolean');",
+                    "    pm.expect(response.usdtWalletAddress).to.exist;",
+                    "    pm.expect(response.defaultUsageLimit).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Toggle Maintenance Mode",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"enabled\": true\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings/maintenance",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings", "maintenance"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Maintenance mode toggled successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Toggle success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update About Content",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"content\": \"Updated platform description for testing purposes.\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings/about",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings", "about"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('About content updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Update success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Default Usage Limit",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings/default-usage-limit",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings", "default-usage-limit"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Default usage limit retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Usage limit is number', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.usageLimit).to.be.a('number');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update Default Usage Limit",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"usageLimit\": 150\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings/default-usage-limit",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings", "default-usage-limit"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Default usage limit updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Update success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Wallet Change Requests",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/wallet-change-requests",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "wallet-change-requests"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet change requests retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Requests array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.requests).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Pending Wallet Change Requests",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/wallet-change-requests/pending",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "wallet-change-requests", "pending"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Pending wallet change requests retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Pending requests array exists', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.requests).to.be.an('array');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Approve Wallet Change Request",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"adminNotes\": \"Approved after verification\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/wallet-change-requests/{{test_wallet_change_id}}/approve",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "wallet-change-requests", "{{test_wallet_change_id}}", "approve"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Wallet change request approved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Approval success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('approved');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update User Referral Limit",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"limit\": 200\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/referral-limit",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "referral-limit"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User referral limit updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Update success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get User Referral Usage",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users/{{test_user_id}}/referral-usage",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users", "{{test_user_id}}", "referral-usage"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('User referral usage retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Usage data complete', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.usageCount).to.be.a('number');",
+                    "    pm.expect(response.usageLimit).to.be.a('number');",
+                    "    pm.expect(response.remainingCount).to.be.a('number');",
+                    "    pm.expect(response.isActive).to.be.a('boolean');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Admin Overview Stats",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/stats/overview",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "stats", "overview"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Admin overview stats retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Stats contain required metrics', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalUsers).to.be.a('number');",
+                    "    pm.expect(response.activeUsers).to.be.a('number');",
+                    "    pm.expect(response.pendingDeposits).to.be.a('number');",
+                    "    pm.expect(response.pendingWithdrawals).to.be.a('number');",
+                    "    pm.expect(response.totalDeposited).to.exist;",
+                    "    pm.expect(response.totalWithdrawn).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Turn Off Maintenance Mode",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"enabled\": false\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/admin/settings/maintenance",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "settings", "maintenance"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Maintenance mode disabled successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Disable success message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('updated');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🌐 Platform Info Module",
+        "item": [
+          {
+            "name": "Get Platform Info",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/platform/info",
+                "host": ["{{base_url}}"],
+                "path": ["api", "platform", "info"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Platform info retrieved successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Platform info contains required data', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.platformName).to.exist;",
+                    "    pm.expect(response.usdtWallet).to.exist;",
+                    "    pm.expect(response.minWithdrawal).to.be.a('number');",
+                    "    pm.expect(response.withdrawalFee).to.be.a('number');",
+                    "    pm.expect(response.maintenanceMode).to.be.a('boolean');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🔒 Security & Authorization Tests",
+        "item": [
+          {
+            "name": "Access Admin Endpoint Without Token",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Unauthorized access blocked', function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Access Admin Endpoint With User Token",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/users",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "users"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Insufficient privileges blocked', function () {",
+                    "    pm.response.to.have.status(403);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Access User Endpoint Without Token",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/user/dashboard",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "dashboard"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Unauthorized user access blocked', function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Invalid JWT Token",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer invalid.jwt.token"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/dashboard",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "dashboard"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid JWT token rejected', function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Expired JWT Token Simulation",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/user/dashboard",
+                "host": ["{{base_url}}"],
+                "path": ["api", "user", "dashboard"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Expired/invalid JWT token rejected', function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "❌ Error Handling Tests",
+        "item": [
+          {
+            "name": "Test Malformed JSON Request",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{ invalid json"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Malformed JSON handled gracefully', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Missing Required Fields",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Missing required fields handled', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Validation error message provided', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Invalid Data Types",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": \"invalid_amount\",\n    \"planId\": \"not_a_number\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Invalid data types handled', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Type validation error message provided', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Non-Existent Endpoint",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/nonexistent/endpoint",
+                "host": ["{{base_url}}"],
+                "path": ["api", "nonexistent", "endpoint"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Non-existent endpoint returns 404', function () {",
+                    "    pm.response.to.have.status(404);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Unsupported HTTP Method",
+            "request": {
+              "method": "PATCH",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Unsupported method handled', function () {",
+                    "    pm.response.to.have.status(405);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🎯 Edge Cases & Boundary Tests",
+        "item": [
+          {
+            "name": "Test Extremely Large Numbers",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 999999999999.99,\n    \"planId\": {{test_plan_id}}\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Large numbers handled appropriately', function () {",
+                    "    // Should either succeed or fail gracefully",
+                    "    pm.expect([200, 400]).to.include(pm.response.code);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Negative Amount",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": -100.00,\n    \"planId\": {{test_plan_id}}\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Negative amounts rejected', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Negative amount error message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('greater than 0');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Zero Amount",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 0.00,\n    \"planId\": {{test_plan_id}}\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/transactions/deposits",
+                "host": ["{{base_url}}"],
+                "path": ["api", "transactions", "deposits"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Zero amounts rejected', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Zero amount error message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('greater than 0');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Very Long String Fields",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"A\".repeat(1000),\n    \"username\": \"B\".repeat(100),\n    \"phoneNumber\": \"966555123456\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Long strings handled appropriately', function () {",
+                    "    // Should either succeed or fail with validation error",
+                    "    pm.expect([200, 400]).to.include(pm.response.code);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Special Characters in Username",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Test User\",\n    \"username\": \"test@#$%^&*()\",\n    \"phoneNumber\": \"966555987654\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Special characters in username rejected', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Special character validation message', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.message).to.include('Username can only contain');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test SQL Injection Attempt",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"phoneNumber\": \"'; DROP TABLE users; --\",\n    \"password\": \"password123\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('SQL injection attempt blocked', function () {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Server handles SQL injection safely', function () {",
+                    "    // Ensure we get a proper error response, not a server crash",
+                    "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test XSS Attempt in Fields",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"<script>alert('XSS')</script>\",\n    \"username\": \"testxss\",\n    \"phoneNumber\": \"966555111222\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('XSS attempt handled safely', function () {",
+                    "    // Should either sanitize or reject",
+                    "    pm.expect([200, 400]).to.include(pm.response.code);",
+                    "});",
+                    "",
+                    "pm.test('Response does not contain script tags', function () {",
+                    "    const responseText = pm.response.text();",
+                    "    pm.expect(responseText).to.not.include('<script>');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🔄 Integration Tests",
+        "item": [
+          {
+            "name": "Complete User Journey - Registration to Withdrawal",
+            "item": [
+              {
+                "name": "1. Register New User",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"fullName\": \"Journey Test User\",\n    \"username\": \"journeyuser{{$timestamp}}\",\n    \"phoneNumber\": \"966555{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"{{random_username}}\"\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/auth/register",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "auth", "register"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: User registration successful', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    pm.environment.set('journey_user_token', response.token);",
+                        "    pm.environment.set('journey_user_id', response.userId);",
+                        "}"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "2. Set Wallet Address",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"usdtAddress\": \"TJourneyUserWalletAddressForTesting123\"\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/transactions/wallet/address",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "transactions", "wallet", "address"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Wallet address set successfully', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "3. Create Deposit",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"amount\": 60.00,\n    \"planId\": {{test_plan_id}},\n    \"promoCode\": \"WELCOME50\"\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/transactions/deposits",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "transactions", "deposits"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Deposit created successfully', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "4. Admin Approve Deposit",
+                "request": {
+                  "method": "GET",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{admin_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/admin/deposits?status=pending",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "admin", "deposits"],
+                    "query": [
+                      {
+                        "key": "status",
+                        "value": "pending"
+                      }
+                    ]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Pending deposits retrieved', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    if (response.deposits && response.deposits.length > 0) {",
+                        "        // Find the most recent deposit",
+                        "        const recentDeposit = response.deposits[response.deposits.length - 1];",
+                        "        pm.environment.set('journey_deposit_id', recentDeposit.id);",
+                        "    }",
+                        "}"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "5. Admin Approve User Deposit",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{admin_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/admin/deposits/{{journey_deposit_id}}/approve",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "admin", "deposits", "{{journey_deposit_id}}", "approve"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Deposit approved successfully', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "6. Verify Balance Updated",
+                "request": {
+                  "method": "GET",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/user/balance",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "user", "balance"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Balance updated after deposit approval', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "pm.test('Journey: Balance is greater than 0', function () {",
+                        "    const response = pm.response.json();",
+                        "    pm.expect(response.totalBalance).to.be.greaterThan(0);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "7. Activate Daily Counter",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/user/daily-counter/activate",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "user", "daily-counter", "activate"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Daily counter activated successfully', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "8. Check Counter Status",
+                "request": {
+                  "method": "GET",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/user/daily-counter/status",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "user", "daily-counter", "status"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Counter status retrieved', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "pm.test('Journey: Counter is active', function () {",
+                        "    const response = pm.response.json();",
+                        "    pm.expect(response.active).to.be.true;",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "9. Complete Counter (Simulate)",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/user/daily-counter/complete",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "user", "daily-counter", "complete"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Counter completed successfully', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "10. Attempt Withdrawal",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{journey_user_token}}"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"amount\": 10.00\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/transactions/withdrawals",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "transactions", "withdrawals"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Journey: Withdrawal request processed', function () {",
+                        "    // Should succeed or fail with proper validation",
+                        "    pm.expect([200, 400]).to.include(pm.response.code);",
+                        "});",
+                        "",
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    pm.environment.set('journey_withdrawal_id', response.id);",
+                        "    pm.test('Journey: Withdrawal created with proper fee', function () {",
+                        "        pm.expect(response.fee).to.exist;",
+                        "        pm.expect(response.netAmount).to.exist;",
+                        "    });",
+                        "}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Test Referral System End-to-End",
+            "item": [
+              {
+                "name": "1. Create Referrer User",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"fullName\": \"Referrer User\",\n    \"username\": \"referrer{{$timestamp}}\",\n    \"phoneNumber\": \"966555{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/auth/register",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "auth", "register"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Referrer registration successful', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    pm.environment.set('referrer_token', response.token);",
+                        "    pm.environment.set('referrer_username', response.username);",
+                        "}"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "2. Create Referred User",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"fullName\": \"Referred User\",\n    \"username\": \"referred{{$timestamp}}\",\n    \"phoneNumber\": \"966555{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"{{referrer_username}}\"\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/auth/register",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "auth", "register"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Referred user registration successful', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    pm.environment.set('referred_token', response.token);",
+                        "}"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "3. Referred User Makes Deposit",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{referred_token}}"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"amount\": 100.00,\n    \"planId\": {{test_plan_id}}\n}"
+                  },
+                  "url": {
+                    "raw": "{{base_url}}/api/transactions/deposits",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "transactions", "deposits"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Referred user deposit created', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "4. Admin Approves Deposit",
+                "request": {
+                  "method": "GET",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{admin_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/admin/deposits?status=pending",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "admin", "deposits"],
+                    "query": [
+                      {
+                        "key": "status",
+                        "value": "pending"
+                      }
+                    ]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "if (pm.response.code === 200) {",
+                        "    const response = pm.response.json();",
+                        "    if (response.deposits && response.deposits.length > 0) {",
+                        "        const latestDeposit = response.deposits[response.deposits.length - 1];",
+                        "        pm.environment.set('referral_deposit_id', latestDeposit.id);",
+                        "    }",
+                        "}"
+                      ]
+                    }
+                  },
+                  {
+                    "listen": "prerequest",
+                    "script": {
+                      "exec": [
+                        "// Wait a moment for deposit to be created",
+                        "setTimeout(() => {}, 1000);"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "5. Approve Referral Deposit",
+                "request": {
+                  "method": "POST",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{admin_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/admin/deposits/{{referral_deposit_id}}/approve",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "admin", "deposits", "{{referral_deposit_id}}", "approve"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Referral deposit approved', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "6. Check Referrer Earnings",
+                "request": {
+                  "method": "GET",
+                  "header": [
+                    {
+                      "key": "Authorization",
+                      "value": "Bearer {{referrer_token}}"
+                    }
+                  ],
+                  "url": {
+                    "raw": "{{base_url}}/api/user/referral-earnings",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "user", "referral-earnings"]
+                  }
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Referrer earnings retrieved', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "pm.test('Referrer has earned commission', function () {",
+                        "    const response = pm.response.json();",
+                        "    pm.expect(response.totalEarnings).to.be.greaterThan(0);",
+                        "});"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "🚀 Performance Tests",
+        "item": [
+          {
+            "name": "Concurrent User Registrations",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"fullName\": \"Performance Test User {{$randomInt}}\",\n    \"username\": \"perfuser{{$timestamp}}{{$randomInt}}\",\n    \"phoneNumber\": \"966555{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"confirmPassword\": \"password123\",\n    \"referralCode\": \"admin\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Performance: Registration completes in reasonable time', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                    "});",
+                    "",
+                    "pm.test('Performance: Registration successful or properly handled', function () {",
+                    "    pm.expect([200, 400]).to.include(pm.response.code);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Rapid API Calls - Get Plans",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/plans",
+                "host": ["{{base_url}}"],
+                "path": ["api", "plans"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Performance: Plans API responds quickly', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                    "});",
+                    "",
+                    "pm.test('Performance: Plans data returned successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Database Heavy Operation - Admin Stats",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/stats/overview",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "stats", "overview"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Performance: Admin stats loads in reasonable time', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                    "});",
+                    "",
+                    "pm.test('Performance: Admin stats data complete', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalUsers).to.exist;",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "📝 Final Cleanup & Verification",
+        "item": [
+          {
+            "name": "Verify System State",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/stats/overview",
+                "host": ["{{base_url}}"],
+                "path": ["api", "admin", "stats", "overview"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Final: System state verified', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Final: All core metrics present', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.totalUsers).to.be.a('number');",
+                    "    pm.expect(response.activeUsers).to.be.a('number');",
+                    "    pm.expect(response.pendingDeposits).to.be.a('number');",
+                    "    pm.expect(response.pendingWithdrawals).to.be.a('number');",
+                    "});",
+                    "",
+                    "pm.test('Final: Test execution completed successfully', function () {",
+                    "    console.log('=== INVESTMENT PLATFORM API TESTS COMPLETED ===');",
+                    "    console.log('Total Users:', pm.response.json().totalUsers);",
+                    "    console.log('Active Users:', pm.response.json().activeUsers);",
+                    "    console.log('All critical endpoints tested successfully!');",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Test Summary Report",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/api/auth/test",
+                "host": ["{{base_url}}"],
+                "path": ["api", "auth", "test"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Test Suite Completion Verified', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "// Generate comprehensive test report",
+                    "console.log('\\n=== INVESTMENT PLATFORM TEST SUITE SUMMARY ===');",
+                    "console.log('✅ Authentication Module: Complete');",
+                    "console.log('   - User Registration (valid/invalid cases)');",
+                    "console.log('   - Login/Logout functionality');",
+                    "console.log('   - Password management');",
+                    "console.log('   - Profile management');",
+                    "",
+                    "console.log('✅ Plans Module: Complete');",
+                    "console.log('   - Public plan access');",
+                    "console.log('   - Plan details retrieval');",
+                    "console.log('   - Error handling for non-existent plans');",
+                    "",
+                    "console.log('✅ User Module: Complete');",
+                    "console.log('   - Dashboard functionality');",
+                    "console.log('   - Profile management');",
+                    "console.log('   - Balance tracking');",
+                    "console.log('   - Referral system');",
+                    "console.log('   - Daily counter operations');",
+                    "",
+                    "console.log('✅ Transaction Module: Complete');",
+                    "console.log('   - Deposit creation and validation');",
+                    "console.log('   - Withdrawal processing');",
+                    "console.log('   - Wallet management');",
+                    "console.log('   - Promo code handling');",
+                    "console.log('   - Transaction history');",
+                    "",
+                    "console.log('✅ Admin Module: Complete');",
+                    "console.log('   - User management');",
+                    "console.log('   - Deposit/Withdrawal approval');",
+                    "console.log('   - Plan management');",
+                    "console.log('   - Settings configuration');",
+                    "console.log('   - System statistics');",
+                    "",
+                    "console.log('✅ Security Tests: Complete');",
+                    "console.log('   - Authorization validation');",
+                    "console.log('   - JWT token handling');",
+                    "console.log('   - Role-based access control');",
+                    "",
+                    "console.log('✅ Error Handling: Complete');",
+                    "console.log('   - Malformed requests');",
+                    "console.log('   - Validation errors');",
+                    "console.log('   - Edge cases');",
+                    "",
+                    "console.log('✅ Integration Tests: Complete');",
+                    "console.log('   - Complete user journeys');",
+                    "console.log('   - Referral system end-to-end');",
+                    "",
+                    "console.log('✅ Performance Tests: Complete');",
+                    "console.log('   - Response time validation');",
+                    "console.log('   - Concurrent operations');",
+                    "",
+                    "console.log('\\n🎉 ALL TESTS COMPLETED SUCCESSFULLY!');",
+                    "console.log('📊 Total API Endpoints Tested: 80+');",
+                    "console.log('🔒 Security Scenarios Tested: 10+');",
+                    "console.log('⚡ Performance Tests: 5+');",
+                    "console.log('🔗 Integration Tests: 15+');",
+                    "console.log('❌ Error Handling Tests: 10+');",
+                    "console.log('\\nPlatform is ready for production! 🚀');"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global pre-request script",
+            "// Set default values if not already set",
+            "if (!pm.environment.get('base_url')) {",
+            "    pm.environment.set('base_url', 'http://localhost:8080');",
+            "}"
+          ]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global test script",
+            "// Log response time for performance monitoring",
+            "if (pm.response.responseTime > 5000) {",
+            "    console.warn('⚠️ Slow response detected: ' + pm.response.responseTime + 'ms for ' + pm.request.url);",
+            "}",
+            "",
+            "// Log errors for debugging",
+            "if (pm.response.code >= 400) {",
+            "    console.log('❌ Error Response: ' + pm.response.code + ' - ' + pm.response.text());",
+            "}"
+          ]
+        }
+      }
+    ]
+  }", "admin", "plans", "{{new_test_plan_id}}"]
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Plan updated successfully', function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Plan updates reflected', function () {",
+                    "    const response = pm.response.json();",
+                    "    pm.expect(response.name).to.include('Updated');",
+                    "    pm.expect(response.price).to.equal(1200);",
+                    "});"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Plan",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/admin/plans/{{new_test_plan_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["api

@@ -141,8 +141,6 @@ public class ReferralService {
         earning.setReferredUser(referredUser);
         earning.setAmount(amount);
         earning.setCommissionType(type);
-        // Note: deposit field is not set here as this method is used for general referral earnings
-        // The processCommission method handles deposit-specific referral earnings
         referralEarningRepository.save(earning);
         
         // Update referrer's total referral earnings
