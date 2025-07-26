@@ -12,7 +12,7 @@ import { BarChart3, ArrowLeft, DollarSign, Calendar, Percent, TrendingUp, Refres
 import Link from "next/link"
 import { FrontendPlan, PlansApiResponse, convertBackendPlanToFrontend } from "@/types"
 import { useLanguage } from "@/contexts/LanguageContext"
-import DeveloperSection from "@/components/DeveloperSection"
+
 
 // Default plans in case API fails
 const defaultPlans: FrontendPlan[] = [
@@ -146,13 +146,13 @@ export default function PlansPage() {
                 variant="outline" 
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center space-x-2 bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:from-gray-700 hover:to-gray-800 text-white"
+                className="flex items-center space-x-2 bg-gradient-to-br bg-card border-border hover:from-gray-700 hover:to-custom-2e2e2e text-foreground"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
                 <span>{refreshing ? t('loading') : t('refresh')}</span>
               </Button>
               <Link href="/dashboard">
-                <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:from-gray-700 hover:to-gray-800 text-white w-full">
+                <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-br bg-card border-border hover:from-gray-700 hover:to-custom-2e2e2e text-foreground w-full">
                   <ArrowLeft className="h-4 w-4" />
                   <span>{t('back_to_dashboard')}</span>
                 </Button>
@@ -189,7 +189,7 @@ export default function PlansPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8 w-full">
             {plans && plans.length > 0 ? (
               plans.map((plan) => (
-                <Card key={plan.id} className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:shadow-lg transition-shadow w-full">
+                <Card key={plan.id} className="bg-gradient-to-br bg-card border-border hover:shadow-lg transition-shadow w-full">
                   <CardHeader className="text-center pb-4">
                     <CardTitle className="text-lg sm:text-xl text-foreground">{plan.name}</CardTitle>
                     <CardDescription className="text-muted-foreground text-sm">{plan.description}</CardDescription>
@@ -208,7 +208,7 @@ export default function PlansPage() {
                     </div>
 
                     {/* Daily Profit Range */}
-                    <div className="text-center p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                    <div className="text-center p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                       <Percent className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-green-400" />
                       <p className="text-sm text-muted-foreground mb-1">{t('daily_profit_range')}</p>
                       <p className="font-semibold text-foreground">
@@ -248,7 +248,7 @@ export default function PlansPage() {
                     {/* Action Button */}
                     <Link href={`/deposit?plan=${plan.id}`}>
                       <Button 
-                        className="w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white" 
+                        className="w-full bg-gradient-to-r from-gray-700 to-custom-2e2e2e hover:from-gray-600 hover:to-gray-700 text-foreground" 
                         size="lg"
                         disabled={usingFallbackData}
                       >
@@ -269,14 +269,14 @@ export default function PlansPage() {
           {/* Investment Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* How It Works */}
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardHeader>
                 <CardTitle className="text-foreground">{t('how_investment_works')}</CardTitle>
                 <CardDescription className="text-muted-foreground">{t('understanding_investment_process')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-foreground rounded-full flex items-center justify-center text-sm font-bold">
                     1
                   </div>
                   <div>
@@ -288,7 +288,7 @@ export default function PlansPage() {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-foreground rounded-full flex items-center justify-center text-sm font-bold">
                     2
                   </div>
                   <div>
@@ -300,7 +300,7 @@ export default function PlansPage() {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-foreground rounded-full flex items-center justify-center text-sm font-bold">
                     3
                   </div>
                   <div>
@@ -312,7 +312,7 @@ export default function PlansPage() {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 bg-gray-700 text-foreground rounded-full flex items-center justify-center text-sm font-bold">
                     4
                   </div>
                   <div>
@@ -326,7 +326,7 @@ export default function PlansPage() {
             </Card>
 
             {/* Investment Benefits */}
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardHeader>
                 <CardTitle className="text-foreground">{t('investment_benefits')}</CardTitle>
                 <CardDescription className="text-muted-foreground">{t('why_choose_platform')}</CardDescription>
@@ -345,7 +345,7 @@ export default function PlansPage() {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg flex items-center justify-center">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-gray-700 to-custom-2e2e2e rounded-lg flex items-center justify-center">
                     <DollarSign className="h-4 w-4 text-green-400" />
                   </div>
                   <div>
@@ -372,9 +372,9 @@ export default function PlansPage() {
           </div>
 
           {/* Call to Action */}
-                      <Card className="mt-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+                      <Card className="mt-8 bg-gradient-to-r from-custom-2e2e2e to-gray-900 text-foreground">
               <CardHeader className="text-center">
-                <CardTitle className="text-white">{t('investment_process')}</CardTitle>
+                <CardTitle className="text-foreground">{t('investment_process')}</CardTitle>
                 <CardDescription className="text-gray-300 mb-6 max-w-2xl mx-auto">
                   {t('join_thousands')}
                 </CardDescription>
@@ -400,8 +400,7 @@ export default function PlansPage() {
           </Card>
         </div>
         
-        {/* Developer Section */}
-        <DeveloperSection />
+        
       </div>
     </ProtectedRoute>
   )

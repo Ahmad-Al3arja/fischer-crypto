@@ -14,7 +14,7 @@ import { User, Phone, Calendar, Shield, ArrowLeft, Edit, Save, X } from "lucide-
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
-import DeveloperSection from "@/components/DeveloperSection"
+
 
 interface UserProfile {
   id: number
@@ -234,7 +234,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Information */}
               <div className="lg:col-span-2 space-y-6">
-                <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+                <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                         </Button>
                       ) : (
                         <div className="flex space-x-2">
-                          <Button size="sm" onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white">
+                          <Button size="sm" onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-gray-700 to-custom-2e2e2e hover:from-gray-600 hover:to-gray-700 text-foreground">
                             {saving ? (
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                             ) : (
@@ -274,10 +274,10 @@ export default function ProfilePage() {
                             id="fullName"
                             value={editForm.fullName}
                             onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                            className="bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700 text-white"
+                            className="bg-gradient-to-r bg-card border-border text-foreground"
                           />
                         ) : (
-                          <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                          <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                             <p className="font-medium text-foreground">{profile.fullName}</p>
                           </div>
                         )}
@@ -290,10 +290,10 @@ export default function ProfilePage() {
                             id="username"
                             value={editForm.username}
                             onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                            className="bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700 text-white"
+                            className="bg-gradient-to-r bg-card border-border text-foreground"
                           />
                         ) : (
-                          <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                          <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                             <p className="font-mono font-medium text-foreground">@{profile.username}</p>
                           </div>
                         )}
@@ -301,14 +301,14 @@ export default function ProfilePage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="phoneNumber" className="text-foreground">{t('phone_number')}</Label>
-                        <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                        <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                           <p className="font-medium text-foreground">{profile.phoneNumber}</p>
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <Label className="text-foreground">{t('account_status')}</Label>
-                        <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                        <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                           {getStatusBadge(profile.status)}
                         </div>
                       </div>
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-foreground">{t('member_since')}</Label>
-                        <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                        <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <p className="text-sm text-foreground">{formatDate(profile.createdAt)}</p>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
 
                       <div className="space-y-2">
                         <Label className="text-foreground">{t('last_login')}</Label>
-                        <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                        <div className="p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                           <div className="flex items-center space-x-2">
                             <Shield className="h-4 w-4 text-muted-foreground" />
                             <p className="text-sm text-foreground">
@@ -341,22 +341,22 @@ export default function ProfilePage() {
                 </Card>
 
                 {/* Account Statistics */}
-                <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+                <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-foreground">{t('account_statistics')}</CardTitle>
                     <CardDescription className="text-muted-foreground">{t('investment_activity')}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                      <div className="text-center p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                         <p className="text-sm text-muted-foreground mb-1">{t('total_deposits')}</p>
                         <p className="text-2xl font-bold text-foreground">${profile.totalDeposits.toFixed(2)}</p>
                       </div>
-                      <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                      <div className="text-center p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                         <p className="text-sm text-muted-foreground mb-1">{t('total_withdrawals')}</p>
                         <p className="text-2xl font-bold text-green-400">${profile.totalWithdrawals.toFixed(2)}</p>
                       </div>
-                      <div className="text-center p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                      <div className="text-center p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                         <p className="text-sm text-muted-foreground mb-1">{t('total_profits')}</p>
                         <p className="text-2xl font-bold text-green-600">${profile.totalProfits.toFixed(2)}</p>
                       </div>
@@ -368,7 +368,7 @@ export default function ProfilePage() {
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Quick Actions */}
-                <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+                <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-foreground">{t('quick_actions')}</CardTitle>
                   </CardHeader>
@@ -395,8 +395,7 @@ export default function ProfilePage() {
           )}
         </div>
         
-        {/* Developer Section */}
-        <DeveloperSection />
+        
       </div>
     </ProtectedRoute>
   )

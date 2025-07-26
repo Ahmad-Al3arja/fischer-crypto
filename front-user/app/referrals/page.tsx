@@ -13,7 +13,7 @@ import { Users, ArrowLeft, Copy, UserPlus, DollarSign, TrendingUp } from "lucide
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
-import DeveloperSection from "@/components/DeveloperSection"
+
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ReferralStats {
@@ -211,7 +211,7 @@ export default function ReferralsPage() {
               <h1 className="text-3xl font-bold text-foreground">{t('referral_network')}</h1>
             </div>
             <Link href="/dashboard">
-              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:from-gray-700 hover:to-gray-800 text-white">
+              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-br bg-card border-border hover:from-gray-700 hover:to-custom-2e2e2e text-foreground">
                 <ArrowLeft className="h-4 w-4" />
                 <span>{t('back_to_dashboard')}</span>
               </Button>
@@ -232,7 +232,7 @@ export default function ReferralsPage() {
 
           {/* Referral Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardContent className="pt-4">
                 <div className="text-center">
                   <UserPlus className="h-8 w-8 mx-auto mb-2 text-green-400" />
@@ -242,7 +242,7 @@ export default function ReferralsPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardContent className="pt-4">
                 <div className="text-center">
                   <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-600" />
@@ -252,17 +252,17 @@ export default function ReferralsPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardContent className="pt-4">
                 <div className="text-center">
-                  <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                  <Users className="h-8 w-8 mx-auto mb-2" style={{ color: '#2E2E2E' }} />
                   <p className="text-sm text-muted-foreground mb-1">{t('second_level')}</p>
-                  <p className="text-2xl font-bold text-blue-600">{referralStats.totalReferrals - referralStats.activeReferrals}</p>
+                  <p className="text-2xl font-bold" style={{ color: '#2E2E2E' }}>{referralStats.totalReferrals - referralStats.activeReferrals}</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardContent className="pt-4">
                 <div className="text-center">
                   <DollarSign className="h-8 w-8 mx-auto mb-2 text-green-400" />
@@ -274,7 +274,7 @@ export default function ReferralsPage() {
           </div>
 
           {/* Referral Code Card */}
-          <Card className="mb-6 bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+          <Card className="mb-6 bg-gradient-to-br bg-card border-border shadow-lg">
                 <CardHeader>
               <CardTitle className="text-foreground">{t('your_referral_code')}</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -286,10 +286,10 @@ export default function ReferralsPage() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">{t('referral_code')}</Label>
                     <div className="flex items-center space-x-2">
-                    <div className="flex-1 p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg font-mono text-center text-white">
+                    <div className="flex-1 p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg font-mono text-center text-foreground">
                       {referralStats.referralCode}
                     </div>
-                    <Button size="sm" onClick={copyReferralCode} className="flex-shrink-0 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white">
+                    <Button size="sm" onClick={copyReferralCode} className="flex-shrink-0 bg-gradient-to-r from-gray-700 to-custom-2e2e2e hover:from-gray-600 hover:to-gray-700 text-foreground">
                       <Copy className="h-4 w-4" />
                       </Button>
                   </div>
@@ -298,18 +298,18 @@ export default function ReferralsPage() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">{t('referral_link')}</Label>
                   <div className="flex items-center space-x-2">
-                    <div className="flex-1 p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg font-mono text-sm truncate text-white">
+                    <div className="flex-1 p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg font-mono text-sm truncate text-foreground">
                       {getReferralLink()}
                     </div>
-                    <Button size="sm" onClick={() => {navigator.clipboard.writeText(getReferralLink()); toast({title: t('copied'), description: t('referral_link_copied')})}} className="flex-shrink-0 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white">
+                    <Button size="sm" onClick={() => {navigator.clipboard.writeText(getReferralLink()); toast({title: t('copied'), description: t('referral_link_copied')})}} className="flex-shrink-0 bg-gradient-to-r from-gray-700 to-custom-2e2e2e hover:from-gray-600 hover:to-gray-700 text-foreground">
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
                       </div>
                     </div>
 
-              <div className="p-4 bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-lg">
-                <h4 className="font-semibold text-white mb-2">{t('how_it_works')}:</h4>
+              <div className="p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 border border-gray-700 rounded-lg">
+                <h4 className="font-semibold text-foreground mb-2">{t('how_it_works')}:</h4>
                 <ul className="text-sm text-gray-300 space-y-1">
                   <li>• {t('share_referral_code_step')}</li>
                   <li>• {t('they_register_step')}</li>
@@ -322,7 +322,7 @@ export default function ReferralsPage() {
               </Card>
 
           {/* Referral Users Table */}
-          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+          <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                 <CardHeader>
               <CardTitle className="text-foreground">{t('your_referrals')}</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -339,7 +339,7 @@ export default function ReferralsPage() {
                   </p>
                   <div className="flex items-center justify-center space-x-2">
                                        <span className="font-mono text-green-400 font-bold">{referralStats.referralCode}</span>
-                   <Button size="sm" onClick={copyReferralCode} className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white">
+                   <Button size="sm" onClick={copyReferralCode} className="bg-gradient-to-r from-gray-700 to-custom-2e2e2e hover:from-gray-600 hover:to-gray-700 text-foreground">
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
@@ -387,8 +387,7 @@ export default function ReferralsPage() {
               </Card>
         </div>
         
-        {/* Developer Section */}
-        <DeveloperSection />
+        
       </div>
     </ProtectedRoute>
   )

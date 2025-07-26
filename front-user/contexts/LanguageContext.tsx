@@ -148,6 +148,13 @@ const translations = {
     'instant': 'Instant',
     'withdraw_funds': 'Withdraw Funds',
     'withdraw_earnings': 'Withdraw your earnings to your USDT wallet',
+    'withdrawal_fee_info': 'Withdrawal Fee Information',
+    'fee_percentage': '12% fee will be deducted',
+    'fee_calculation': 'Fee Calculation',
+    'requested_amount': 'Requested Amount',
+    'fee_amount': 'Fee (12%)',
+    'net_amount': 'Net Amount (You will receive)',
+    'fee_note': 'A 12% processing fee will be deducted from your withdrawal amount.',
     'enter_withdrawal_amount': 'Enter withdrawal amount',
     'usdt_wallet_address': 'USDT Wallet Address',
     'submit_withdrawal': 'Submit Withdrawal',
@@ -206,6 +213,22 @@ const translations = {
     'min_max': 'Min: $60 | Max: $600',
     'min_max_withdrawal': 'Min: $10 | Max: $50,000',
     'select_plan': 'Select a plan',
+    
+    // Balance related
+    'account_balance': 'Account Balance',
+    'account_balance_description': 'Your current account balance information',
+    'withdrawable_balance': 'Withdrawable Balance',
+    'available_for_withdrawal': 'Available for withdrawal',
+    'frozen_balance': 'Frozen Balance',
+    'investment_capital_locked': 'Investment capital (locked)',
+    'total_balance': 'Total Balance',
+    'total_account_value': 'Total account value',
+    'referral_earnings': 'Referral Earnings',
+    'from_referrals': 'From referrals',
+    'max': 'Max',
+    'withdrawal_limits': 'Withdrawal Limits',
+    'no_withdrawable_balance': 'No Withdrawable Balance',
+    'no_withdrawable_balance_message': 'You need to earn profits from your investment plan before you can make withdrawals. The withdrawable balance shows only your profits, not your investment capital.',
     
     // Profile
     'account_information': 'Account Information',
@@ -268,13 +291,7 @@ const translations = {
     'not_found': 'Resource not found',
     'server_error': 'Server error occurred',
     
-    // Developer Section
-    'developer_name': 'Ahmed Alarjah',
-    'developer_title': 'Full Stack Developer',
-    'available_for_projects': 'Available for projects',
-    'contact_on_whatsapp': 'Contact on WhatsApp',
-    'developed_with': 'Developed with',
-    'by_developer': 'by Ahmed Alarjah',
+
     
     // Deposit Page - Additional translations
     'plan_details': 'Plan Details',
@@ -468,6 +485,13 @@ const translations = {
     'instant': 'فوري',
     'withdraw_funds': 'سحب الأموال',
     'withdraw_earnings': 'اسحب أرباحك إلى محفظة USDT الخاصة بك',
+    'withdrawal_fee_info': 'معلومات رسوم السحب',
+    'fee_percentage': 'سيتم خصم رسوم 12%',
+    'fee_calculation': 'حساب الرسوم',
+    'requested_amount': 'المبلغ المطلوب',
+    'fee_amount': 'الرسوم (12%)',
+    'net_amount': 'المبلغ الصافي (ستحصل عليه)',
+    'fee_note': 'سيتم خصم رسوم معالجة 12% من مبلغ السحب.',
     'enter_withdrawal_amount': 'أدخل مبلغ السحب',
     'usdt_wallet_address': 'عنوان محفظة USDT',
     'submit_withdrawal': 'إرسال السحب',
@@ -526,6 +550,22 @@ const translations = {
     'min_max': 'الحد الأدنى: 60 دولار | الحد الأقصى: 600 دولار',
     'min_max_withdrawal': 'الحد الأدنى: 10 دولار | الحد الأقصى: 50,000 دولار',
     'select_plan': 'اختر خطة',
+    
+    // Balance related
+    'account_balance': 'رصيد الحساب',
+    'account_balance_description': 'معلومات رصيد حسابك الحالي',
+    'withdrawable_balance': 'رصيد قابل للسحب',
+    'available_for_withdrawal': 'متاح للسحب',
+    'frozen_balance': 'رصيد مجمد',
+    'investment_capital_locked': 'رأس المال الاستثماري (مقفل)',
+    'total_balance': 'الرصيد الإجمالي',
+    'total_account_value': 'قيمة الحساب الإجمالية',
+    'referral_earnings': 'أرباح الإحالة',
+    'from_referrals': 'من الإحالات',
+    'max': 'الحد الأقصى',
+    'withdrawal_limits': 'حدود السحب',
+    'no_withdrawable_balance': 'لا يوجد رصيد قابل للسحب',
+    'no_withdrawable_balance_message': 'يجب أن تكسب الأرباح من خطة الاستثمار الخاصة بك قبل أن تتمكن من إجراء السحوبات. يظهر رصيد قابل للسحب فقط الأرباح، وليس رأس المال الاستثماري.',
     
     // Profile
     'account_information': 'معلومات الحساب',
@@ -588,13 +628,7 @@ const translations = {
     'not_found': 'المورد غير موجود',
     'server_error': 'حدث خطأ في الخادم',
     
-    // Developer Section
-    'developer_name': 'أحمد العرجه',
-    'developer_title': 'مطور ويب شامل',
-    'available_for_projects': 'متاح للمشاريع',
-    'contact_on_whatsapp': 'تواصل عبر واتساب',
-    'developed_with': 'تم التطوير بـ',
-    'by_developer': 'بواسطة أحمد العرجه',
+
     
     // Deposit Page - Additional translations
     'plan_details': 'تفاصيل الخطة',

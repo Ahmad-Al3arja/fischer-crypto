@@ -14,7 +14,7 @@ import { Wallet, ArrowLeft, Copy, Edit, Save, X, AlertCircle } from "lucide-reac
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
-import DeveloperSection from "@/components/DeveloperSection"
+
 
 interface WalletInfo {
   usdtAddress: string
@@ -144,7 +144,7 @@ export default function WalletPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Wallet Information */}
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+            <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -229,7 +229,7 @@ export default function WalletPage() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className="p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                        <div className="p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <p className="font-mono text-sm break-all">{walletInfo.usdtAddress}</p>
@@ -262,24 +262,24 @@ export default function WalletPage() {
             {/* Wallet Information */}
             <div className="space-y-6">
               {/* Network Information */}
-              <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+              <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                 <CardHeader>
                   <CardTitle>{t('network_information')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                    <div className="text-center p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                       <p className="text-sm text-muted-foreground mb-1">{t('network')}</p>
                       <p className="font-semibold">TRC20</p>
                     </div>
-                    <div className="text-center p-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                    <div className="text-center p-3 bg-gradient-to-r from-custom-2e2e2e to-gray-900 rounded-lg">
                       <p className="text-sm text-muted-foreground mb-1">{t('token')}</p>
                       <p className="font-semibold">USDT</p>
                     </div>
                   </div>
                   
-                  <div className="p-4 bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-lg">
-                    <h4 className="font-semibold text-white mb-2">{t('network_notes')}</h4>
+                  <div className="p-4 bg-gradient-to-r from-custom-2e2e2e to-gray-900 border border-gray-700 rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">{t('network_notes')}</h4>
                     <ul className="text-sm text-gray-300 space-y-1">
                       <li>• {t('only_trc20_supported')}</li>
                       <li>• {t('ensure_correct_network')}</li>
@@ -291,7 +291,7 @@ export default function WalletPage() {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+              <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                 <CardHeader>
                   <CardTitle>{t('quick_actions')}</CardTitle>
                 </CardHeader>
@@ -315,7 +315,7 @@ export default function WalletPage() {
               </Card>
 
               {/* Security Tips */}
-              <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-lg">
+              <Card className="bg-gradient-to-br bg-card border-border shadow-lg">
                 <CardHeader>
                   <CardTitle>{t('security_tips')}</CardTitle>
                 </CardHeader>
@@ -350,8 +350,7 @@ export default function WalletPage() {
           </div>
         </div>
         
-        {/* Developer Section */}
-        <DeveloperSection />
+        
       </div>
     </ProtectedRoute>
   )
